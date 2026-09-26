@@ -1,0 +1,13 @@
+@import '../styles.css';
+
+.add-wave svg {
+  width: 15px;
+  height: 15px;
+  vertical-align: -3px;
+  margin-right: 6px;
+}
+
+.primary-button:disabled {
+  opacity: .7;
+  cursor: progress;
+}

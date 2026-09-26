@@ -1,0 +1,6 @@
+(2026-09-25) - Додали генератор багатошарових хвилястих фонів з налаштуванням полотна, хвиль, палітр і експортом PNG/SVG (feat: add wave background generator)
+(2026-09-25) - Додали світлу й темну теми зі збереженням вибору (feat: add light and dark themes)
+(2026-09-25) - Прибрали повторюваний візерунок хвиль завдяки нерівномірним вигинам (fix: make wave shapes nonrepeating)
+(2026-09-25) - Додали зсув хвиль по X і збільшили діапазон частоти до 80× (feat: add wave x offset and wider frequency range)
+(2026-09-26) - Перенесли проєкт на Next.js App Router і розділили редактор на масштабовані компоненти, хуки, доменні модулі та сервіси (refactor: migrate wave studio to nextjs)
+(2026-09-26) - Додали POST API для генерації SVG/PNG файлів з JSON-налаштувань і підтримкою random-значень для хвиль (feat: add wave generation api)
