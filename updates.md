@@ -4,3 +4,5 @@
 (2026-09-25) - Додали зсув хвиль по X і збільшили діапазон частоти до 80× (feat: add wave x offset and wider frequency range)
 (2026-09-26) - Перенесли проєкт на Next.js App Router і розділили редактор на масштабовані компоненти, хуки, доменні модулі та сервіси (refactor: migrate wave studio to nextjs)
 (2026-09-26) - Додали POST API для генерації SVG/PNG файлів з JSON-налаштувань і підтримкою random-значень для хвиль (feat: add wave generation api)
+(2026-09-26) - Додали нативний Phone Mockup Studio без iframe з 3D-сценою, девайсами, пресетами, фільтрами, JSON імпортом/експортом і модульною архітектурою для майбутнього API (feat: add native phone mockup studio)
+(2026-09-26) - Стабілізували стартові id хвиль, щоб прибрати hydration warning у SVG превʼю (fix: stabilize initial wave ids)

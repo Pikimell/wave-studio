@@ -1,5 +1,5 @@
 import { MAX_DIMENSION, MAX_WAVES, MIN_DIMENSION } from './constants';
-import { clamp, makeId, randomSeed, validHex } from './math';
+import { clamp, randomSeed, validHex } from './math';
 import type { WaveLayer, WaveProject } from './types';
 
 export const createInitialProject = (): WaveProject => ({
@@ -8,11 +8,11 @@ export const createInitialProject = (): WaveProject => ({
   background: '#EAF5FF',
   selectedId: null,
   waves: [
-    { id: makeId(), color: '#C6E3FF', type: 'fill', position: 57, amplitude: 22, frequency: 2.1, offset: 0, opacity: 88, seed: 13241 },
-    { id: makeId(), color: '#9DC9F3', type: 'fill', position: 69, amplitude: 18, frequency: 1.9, offset: 0, opacity: 76, seed: 77218 },
-    { id: makeId(), color: '#6EA9E4', type: 'fill', position: 79, amplitude: 17, frequency: 2.2, offset: 0, opacity: 88, seed: 37491 },
-    { id: makeId(), color: '#F7FBFF', type: 'fill', position: 90, amplitude: 14, frequency: 1.9, offset: 0, opacity: 100, seed: 58312 },
-    { id: makeId(), color: '#5D9DEC', type: 'line', position: 43, amplitude: 7, frequency: 3.8, offset: 0, opacity: 95, seed: 94825 }
+    { id: 'wave-1', color: '#C6E3FF', type: 'fill', position: 57, amplitude: 22, frequency: 2.1, offset: 0, opacity: 88, seed: 13241 },
+    { id: 'wave-2', color: '#9DC9F3', type: 'fill', position: 69, amplitude: 18, frequency: 1.9, offset: 0, opacity: 76, seed: 77218 },
+    { id: 'wave-3', color: '#6EA9E4', type: 'fill', position: 79, amplitude: 17, frequency: 2.2, offset: 0, opacity: 88, seed: 37491 },
+    { id: 'wave-4', color: '#F7FBFF', type: 'fill', position: 90, amplitude: 14, frequency: 1.9, offset: 0, opacity: 100, seed: 58312 },
+    { id: 'wave-5', color: '#5D9DEC', type: 'line', position: 43, amplitude: 7, frequency: 3.8, offset: 0, opacity: 95, seed: 94825 }
   ]
 });
 
