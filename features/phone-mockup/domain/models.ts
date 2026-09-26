@@ -7,7 +7,9 @@ export const PHONE_MODELS: PhoneModelConfig[] = [
     assetPath: '/phone-mockup-studio/source/apple_iphone_15_pro_max_black(2).glb',
     screenMaterialName: 'pIJKfZsazmcpEiU',
     baseRotation: [0, Math.PI, 0],
-    uv: { rotation: Math.PI, mirrorX: true }
+    uv: { rotation: Math.PI, mirrorX: true },
+    brightenBodyMaterials: true,
+    flattenGlossyPlainMaterials: true
   },
   {
     id: 'iphone-17-pro-max',

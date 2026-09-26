@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Layers, Smartphone } from 'lucide-react';
 import { PhoneMockupStudio } from '@/features/phone-mockup/components/PhoneMockupStudio';
 import { WaveStudio } from '@/features/wave-studio/components/WaveStudio';
@@ -33,6 +34,10 @@ export const StudioHub = () => {
   return (
     <div className="studio-hub">
       <nav className="studio-switcher" aria-label="Перемикач інструментів">
+        <Link href="/aso-screenshot-studio" className="studio-tab" style={{ textDecoration: 'none' }}>
+          <Layers aria-hidden="true" />
+          <span><strong>ASO Studio</strong><small>Серії скріншотів</small></span>
+        </Link>
         {STUDIO_OPTIONS.map((option) => {
           const Icon = option.icon;
           const active = mode === option.id;

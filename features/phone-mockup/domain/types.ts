@@ -64,6 +64,8 @@ export type PhoneModelConfig = {
     border: number;
     radius: number;
   };
+  brightenBodyMaterials?: boolean;
+  flattenGlossyPlainMaterials?: boolean;
   materialTweaks?: Record<string, PhoneMaterialTweak>;
 };
 

@@ -29,6 +29,7 @@ export class PhoneSceneRenderer {
   private screenMaterial: THREE.MeshStandardMaterial | null = null;
   private originalScreenMap: THREE.Texture | null = null;
   private screenTexture: THREE.Texture | null = null;
+  private bodyMaterials: Array<{ material: THREE.MeshStandardMaterial; baseColor: THREE.Color }> = [];
   private screenshot: (CanvasImageSource & { width: number; height: number }) | null = null;
   private project: PhoneMockupProject;
   private disposed = false;
@@ -162,6 +163,7 @@ export class PhoneSceneRenderer {
     this.modelGroup = null;
     this.screenMaterial = null;
     this.originalScreenMap = null;
+    this.bodyMaterials = [];
   }
 
   private fitModel(root: THREE.Group) {
@@ -204,6 +206,8 @@ export class PhoneSceneRenderer {
           mat.metalness = 0;
           mat.roughness = 1;
           mat.envMapIntensity = 0;
+          mat.transparent = false;
+          mat.opacity = 1;
           mat.color = new THREE.Color(0x000000);
           mat.map = null;
           mat.emissiveMap = this.originalScreenMap;
@@ -211,7 +215,28 @@ export class PhoneSceneRenderer {
           return;
         }
 
-        if (!tweak) return;
+        if (this.currentModel.flattenGlossyPlainMaterials && this.isGlossyPlainMaterial(mat)) {
+          mat.metalness = 0;
+          mat.roughness = 1;
+          mat.metalnessMap = null;
+          mat.roughnessMap = null;
+          mat.envMapIntensity = 0;
+          mat.color = new THREE.Color(0x000000);
+          mat.emissive = new THREE.Color(0x0d0d0f);
+          mat.emissiveIntensity = 1;
+          mat.toneMapped = false;
+          mat.transparent = false;
+          mat.opacity = 1;
+          mat.needsUpdate = true;
+          return;
+        }
+
+        if (!tweak) {
+          if (this.currentModel.brightenBodyMaterials) {
+            this.bodyMaterials.push({ material: mat, baseColor: mat.color.clone() });
+          }
+          return;
+        }
 
         Object.entries(tweak).forEach(([key, value]) => {
           if (key === 'color' && typeof value === 'number') mat.color = new THREE.Color(value);
@@ -227,6 +252,7 @@ export class PhoneSceneRenderer {
         mat.needsUpdate = true;
       });
     });
+    this.applyBodyBrightness(1.6);
   }
 
   private applyProject(project: PhoneMockupProject) {
@@ -237,9 +263,30 @@ export class PhoneSceneRenderer {
       light.intensity = 1.15 * exposure;
     });
     this.hemi.intensity = 0.9 * exposure;
+    this.applyBodyBrightness(1 + (1.6 - 1) * exposure);
     this.orientRig.rotation.z = project.orientation === 'landscape' ? LANDSCAPE_ROLL : 0;
     this.applyPresetOrCustomRotation(project);
     this.refreshScreenTexture();
+  }
+
+  private isGlossyPlainMaterial(material: THREE.MeshStandardMaterial) {
+    const hasVisibleTexture = Boolean(material.map || material.emissiveMap || material.normalMap);
+    return Boolean(material.roughness !== undefined && material.roughness <= 0.1 && material.metalness !== undefined && !hasVisibleTexture);
+  }
+
+  private applyBodyBrightness(multiplier: number) {
+    this.bodyMaterials.forEach(({ material, baseColor }) => {
+      const luminance = 0.2126 * baseColor.r + 0.7152 * baseColor.g + 0.0722 * baseColor.b;
+      const influence = luminance < 0.5 ? 1 - luminance / 0.5 : 0;
+      const factor = 1 + (multiplier - 1) * influence;
+
+      material.color.setRGB(
+        Math.min(1, baseColor.r * factor + 0.04 * (multiplier - 1) * influence),
+        Math.min(1, baseColor.g * factor + 0.04 * (multiplier - 1) * influence),
+        Math.min(1, baseColor.b * factor + 0.05 * (multiplier - 1) * influence)
+      );
+      material.needsUpdate = true;
+    });
   }
 
   private applyPresetOrCustomRotation(project: PhoneMockupProject) {
@@ -292,9 +339,20 @@ export class PhoneSceneRenderer {
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
-    texture.flipY = this.originalScreenMap?.flipY ?? false;
-    texture.wrapS = this.originalScreenMap?.wrapS ?? THREE.ClampToEdgeWrapping;
-    texture.wrapT = this.originalScreenMap?.wrapT ?? THREE.ClampToEdgeWrapping;
+
+    if (this.originalScreenMap) {
+      texture.flipY = this.originalScreenMap.flipY;
+      texture.wrapS = this.originalScreenMap.wrapS;
+      texture.wrapT = this.originalScreenMap.wrapT;
+      texture.center.copy(this.originalScreenMap.center);
+      texture.offset.copy(this.originalScreenMap.offset);
+      texture.repeat.copy(this.originalScreenMap.repeat);
+      texture.rotation = this.originalScreenMap.rotation;
+    } else {
+      texture.flipY = false;
+      texture.wrapS = THREE.ClampToEdgeWrapping;
+      texture.wrapT = THREE.ClampToEdgeWrapping;
+    }
 
     const uv = this.currentModel.uv;
     if (uv) {
