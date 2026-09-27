@@ -51,3 +51,4 @@
 (2026-09-27) - Додали в ТЗ реалізовані можливості ASO Studio з updates.md (docs: update aso studio specification)
 (2026-09-27) - Розширили пресети розмірів ASO Studio для iPhone, iPad, Laptop/Mac і Android (feat: expand aso size presets)
 (2026-09-27) - Додали згортання груп у робочій області ASO Studio (feat: collapse aso workspace groups)
+(2026-09-27) - Зафіксували вертикальний розмір групи та обрізання контенту за її межами (fix: clip aso group vertical overflow)

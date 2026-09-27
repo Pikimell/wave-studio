@@ -17,7 +17,7 @@
 .scope :global(.aso-slide-labels){display:flex;flex-wrap:nowrap;padding-top:20px;}
 .scope :global(.aso-slide-labels) button{display:flex;justify-content:space-between;flex-shrink:0;background:transparent;border:0;padding:0 0 3px;font-size:10px;color:#92a6bb;border-radius:0;}
 .scope :global(.aso-slide-labels) button[aria-pressed=true]{color:#c8f28f;}
-.scope :global(.aso-canvas){display:block;touch-action:none;user-select:none;}
+.scope :global(.aso-canvas){display:block;touch-action:none;user-select:none;overflow:hidden;}
 .scope :global(.aso-dialog) :global(.aso-row){margin-bottom:15px;}
 @media (max-width:1200px){.scope :global(.aso-group-header){align-items:flex-start;flex-direction:column;}.scope :global(.aso-group-title){width:100%;}}
 .scope :global(.aso-group-header) :global(.aso-row){flex-wrap:wrap;}

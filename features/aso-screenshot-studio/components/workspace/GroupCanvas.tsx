@@ -32,9 +32,9 @@ export function GroupCanvas({ group, selection, select, zoom, collapsed, onToggl
   const [guides, setGuides] = useState<Guide[]>([]);
   const bounds = createScene(group).elements.map(elementBounds);
   const left = Math.min(-160, ...bounds.map(b => b.x - 160));
-  const top = Math.min(-160, ...bounds.map(b => b.y - 160));
   const right = Math.max(groupWidth(group) + 160, ...bounds.map(b => b.x + b.width + 160));
-  const bottom = Math.max(group.height + 160, ...bounds.map(b => b.y + b.height + 160));
+  const top = 0;
+  const bottom = group.height;
   const gesture = useRef<{ element: StudioElement; mode: GestureMode; x: number; y: number; moving: StudioElement[]; latest: GeometryDraft['changes']; pointerId: number } | null>(null);
   useLayoutEffect(() => {
     const node = scroll.current;
