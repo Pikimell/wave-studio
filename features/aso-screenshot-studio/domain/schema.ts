@@ -37,11 +37,13 @@ export interface Group {
 }
 export interface Project {
   schemaVersion: typeof SCHEMA_VERSION; id: string; name: string;
-  createdAt: string; groups: Group[];
+  createdAt: string; description: string; generationNotes: string;
+  audienceProfile: string; slidePlan: string; groups: Group[];
 }
 export const newId = () => crypto.randomUUID();
 export function createProject(name = 'Untitled project'): Project {
-  return { schemaVersion: SCHEMA_VERSION, id: newId(), name, createdAt: new Date().toISOString(), groups: [] };
+  return { schemaVersion: SCHEMA_VERSION, id: newId(), name, createdAt: new Date().toISOString(),
+    description: '', generationNotes: '', audienceProfile: '', slidePlan: '', groups: [] };
 }
 export function createSlide(): Slide {
   return { id: newId(), background: null, padding: { top: 80, right: 80, bottom: 80, left: 80 } };
@@ -108,6 +110,12 @@ const background: Validator = (v, p) => {
 };
 export function validateProject(value: unknown): Project {
   if ((value as Project | null)?.schemaVersion !== SCHEMA_VERSION) throw new Error('Непідтримувана версія ASO-проєкту. Очікується schemaVersion: 1.');
+  // schemaVersion 1 existed before AI project metadata. Fill the new fields while
+  // importing old local projects and templates without weakening strict validation.
+  const normalized = value && typeof value === 'object' && !Array.isArray(value) ? {
+    description: '', generationNotes: '', audienceProfile: '', slidePlan: '',
+    ...(value as Record<string, unknown>)
+  } : value;
   const ids = new Set<string>();
   const id: Validator = (v, p) => {
     if (typeof v !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(v) || ids.has(v)) fail(p);
@@ -136,10 +144,11 @@ export function validateProject(value: unknown): Project {
   };
   object({ schemaVersion: choices(SCHEMA_VERSION), id, name: string(), createdAt: (v, p) => {
     string(40)(v, p); if (!Number.isFinite(Date.parse(v as string))) fail(p);
-  }, groups: array(object({ id, name: string(), platform: choices('app-store', 'google-play'), presetId: string(128),
+  }, description: string(20_000, true), generationNotes: string(10_000, true), audienceProfile: string(30_000, true),
+  slidePlan: string(30_000, true), groups: array(object({ id, name: string(), platform: choices('app-store', 'google-play'), presetId: string(128),
     width: number(320, LIMITS.dimension, true), height: number(320, LIMITS.dimension, true), locale,
     prefix: string(100, true), variant: string(100, true), gap: number(0, LIMITS.gap), background,
     backgroundScope: choices('group', 'slide'), slides: array(object({ id, background: nullable(background),
-      padding: object({ top: number(0, LIMITS.dimension), right: number(0, LIMITS.dimension), bottom: number(0, LIMITS.dimension), left: number(0, LIMITS.dimension) }) })), elements: array(element) })) })(value, 'project');
-  return structuredClone(value) as Project;
+      padding: object({ top: number(0, LIMITS.dimension), right: number(0, LIMITS.dimension), bottom: number(0, LIMITS.dimension), left: number(0, LIMITS.dimension) }) })), elements: array(element) })) })(normalized, 'project');
+  return structuredClone(normalized) as Project;
 }

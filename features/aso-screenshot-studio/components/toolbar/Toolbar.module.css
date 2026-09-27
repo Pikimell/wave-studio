@@ -8,6 +8,7 @@
 .scope :global(.aso-project-name) input{padding:4px 7px;}
 .scope :global(.aso-project-name) small{font-size:10px;display:block;margin:5px 0 0 7px;}
 .scope :global(.aso-toolbar-actions){margin-left:auto;display:flex;align-items:center;flex-wrap:wrap;gap:7px;}
+.scope :global(.aso-ai){border-color:#68883c;color:#d9ff9f;background:#1d2d21;}
 .scope :global(.aso-zoom) select{background:#111b27;border:1px solid var(--aso-border);border-radius:7px;padding:8px;color:#eef4fa;}
 @media (max-width:1200px){.scope:global(.aso-toolbar){gap:12px;}}
 @media (max-width:1200px){.scope :global(.aso-toolbar-actions){gap:5px;}}

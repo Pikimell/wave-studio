@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import styles from './Toolbar.module.css';
-import { ArrowLeft, FolderOpen, Plus, Redo2, Save, Undo2 } from 'lucide-react';
+import { ArrowLeft, FolderOpen, Plus, Redo2, Save, Sparkles, Undo2 } from 'lucide-react';
 import type { Project } from '../../domain/schema';
 import { ZOOM_PRESETS } from '../../hooks/useWorkspaceZoom';
 import { TextField } from '../inspector/Fields';
-export function Toolbar({ project, saved, onRename, onNew, onOpen, onSave, onAddGroup, canUndo, canRedo, undo, redo, zoom, setZoom }: {
+export function Toolbar({ project, saved, onRename, onNew, onOpen, onSave, onGenerate, onAddGroup, canUndo, canRedo, undo, redo, zoom, setZoom }: {
   project: Project | null; saved: boolean; onRename: (name: string) => void; onNew: () => void; onOpen: () => void; onSave: () => void;
-  onAddGroup: () => void; canUndo: boolean; canRedo: boolean; undo: () => void; redo: () => void; zoom: number; setZoom: (zoom: number) => void;
+  onGenerate: () => void; onAddGroup: () => void; canUndo: boolean; canRedo: boolean; undo: () => void; redo: () => void; zoom: number; setZoom: (zoom: number) => void;
 }) {
   return <header className={`${styles.scope} aso-toolbar`}>
     <Link href="/aso-screenshot-studio" className="aso-back" title="До проєктів"><ArrowLeft size={18} /><span>Проєкти</span></Link>
@@ -16,6 +16,7 @@ export function Toolbar({ project, saved, onRename, onNew, onOpen, onSave, onAdd
       <button onClick={onNew}><Plus size={15} />Новий проєкт</button>
       <button onClick={onOpen}><FolderOpen size={15} />Open JSON</button>
       <button onClick={onSave} disabled={!project}><Save size={15} />Save JSON</button>
+      <button className="aso-ai" onClick={onGenerate} disabled={!project}><Sparkles size={15} />Опис і AI</button>
       <button onClick={undo} disabled={!canUndo} aria-label="Скасувати" title="Cmd/Ctrl + Z"><Undo2 size={16} /></button>
       <button onClick={redo} disabled={!canRedo} aria-label="Повторити" title="Cmd/Ctrl + Shift + Z"><Redo2 size={16} /></button>
       <label className="aso-zoom"><span className="aso-sr-only">Масштаб</span><select value={zoom} onChange={e => setZoom(Number(e.target.value))}>{ZOOM_PRESETS.map(value => <option key={value} value={value}>{value}%</option>)}</select></label>

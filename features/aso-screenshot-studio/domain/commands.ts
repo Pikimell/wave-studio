@@ -4,6 +4,7 @@ import { validateProject, type ElementGeometry, type Group, type Project, type S
 export type GroupPatch = Partial<Omit<Group, 'id' | 'slides' | 'elements'>>;
 type Patch<T> = T extends StudioElement ? Partial<Omit<T, 'id' | 'type'>> : never;
 export type ElementPatch = Patch<StudioElement>;
+export type ProjectPatch = Partial<Pick<Project, 'name' | 'description' | 'generationNotes' | 'audienceProfile' | 'slidePlan'>>;
 export type Command =
   | { type: 'slide.insert'; groupId: string; index: number; slide: Slide }
   | { type: 'slide.delete'; groupId: string; slideId: string }
@@ -12,6 +13,7 @@ export type Command =
   | { type: 'batch'; commands: Command[] }
   | { type: 'elements.order'; groupId: string; elementIds: string[]; direction: OrderDirection }
   | { type: 'project.rename'; name: string }
+  | { type: 'project.update'; patch: ProjectPatch }
   | { type: 'group.add'; group: Group }
   | { type: 'group.update'; groupId: string; patch: GroupPatch }
   | { type: 'group.delete'; groupId: string }
@@ -25,6 +27,7 @@ function applyUnchecked(project: Project, command: Command): Project {
   if (command.type === 'batch') return command.commands.reduce(applyUnchecked, project);
   let next: Project;
   if (command.type === 'project.rename') next = { ...project, name: command.name };
+  else if (command.type === 'project.update') next = { ...project, ...command.patch };
   else if (command.type === 'group.add') next = { ...project, groups: [...project.groups, command.group] };
   else {
     if (!project.groups.some(g => g.id === command.groupId)) throw new Error('Групу не знайдено');

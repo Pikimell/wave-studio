@@ -25,6 +25,7 @@ import { Inspector } from './inspector/Inspector';
 import { GroupCanvas, type GeometryDraft, type CanvasPointer } from './workspace/GroupCanvas';
 import { LocalizeDialog } from './dialogs/LocalizeDialog';
 import { AddGroupDialog } from './dialogs/AddGroupDialog';
+import { GenerateProjectDialog } from './dialogs/GenerateProjectDialog';
 import { PreviewPanel } from './preview/PreviewPanel';
 import styles from './AsoScreenshotStudio.module.css';
 import fontStyles from './FontFaces.module.css';
@@ -45,6 +46,7 @@ export function AsoScreenshotStudio({ projectId }: { projectId: string }) {
   const [progress, setProgress] = useState('');
   const [issues, setIssues] = useState<{ groupId: string; items: ExportIssue[] } | null>(null);
   const [addingGroup, setAddingGroup] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [draft, setDraft] = useState<GeometryDraft | null>(null);
   const [showSidebar, setShowSidebar] = useState(true);
   const [showInspector, setShowInspector] = useState(true);
@@ -181,7 +183,7 @@ export function AsoScreenshotStudio({ projectId }: { projectId: string }) {
   }} onBlurCapture={() => studio.end()}>
     <Toolbar project={project} saved={studio.saved} onRename={name => dispatch({ type: 'project.rename', name })} onNew={newProject} onOpen={() => input.current?.click()} onSave={() => {
       if (project) { try { saveProjectFile(project); } catch (e) { studio.setError(String(e)); } }
-    }} onAddGroup={() => setAddingGroup(true)} canUndo={studio.canUndo && !draft} canRedo={studio.canRedo && !draft} undo={studio.undo} redo={studio.redo} zoom={zoom} setZoom={changeZoom} />
+    }} onGenerate={() => setGenerating(true)} onAddGroup={() => setAddingGroup(true)} canUndo={studio.canUndo && !draft} canRedo={studio.canRedo && !draft} undo={studio.undo} redo={studio.redo} zoom={zoom} setZoom={changeZoom} />
     <input ref={input} className="aso-sr-only" tabIndex={-1} type="file" accept=".json,application/json" aria-label="Відкрити JSON проєкту" onChange={async event => {
       const file = event.target.files?.[0]; event.target.value = '';
       if (!file) return;
@@ -233,5 +235,9 @@ export function AsoScreenshotStudio({ projectId }: { projectId: string }) {
       setProgress(`Додано локалізованих груп: ${groups.length}. Перевірте довжину тексту в кожній групі.`);
     }} />}
     {addingGroup && <AddGroupDialog onClose={() => setAddingGroup(false)} onAdd={group => { dispatch({ type: 'group.add', group }); select({ kind: 'group', groupId: group.id }); }} />}
+    {generating && project && <GenerateProjectDialog project={project} apiKey={apiKey} setApiKey={setApiKey} model={model} setModel={setModel} onClose={() => setGenerating(false)} onSave={metadata => dispatch({ type: 'project.update', patch: metadata })} onGenerate={(group, metadata) => {
+      dispatch({ type: 'batch', commands: [{ type: 'project.update', patch: metadata }, { type: 'group.add', group }] });
+      select({ kind: 'group', groupId: group.id }); setGenerating(false); setProgress(`AI створив групу «${group.name}» із ${group.slides.length} слайдами. Додайте screenshots у mockup-плейсхолдери.`);
+    }} />}
   </div></AssetContext.Provider></FontContext.Provider>;
 }
