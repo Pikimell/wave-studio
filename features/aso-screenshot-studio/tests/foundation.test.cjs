@@ -460,3 +460,80 @@ test('expanded font catalog has licensed files and recognizes requested Latin-on
   text.segments[0].text = 'Привіт';
   assert.ok(inspectGroup(group, new Set()).some(issue => issue.severity === 'warning' && issue.message.includes('кирилиці')));
 });
+
+const { COMPOSITIONS, validateDeckSpec, deckSpecToGroup } = require('../domain/generation.ts');
+const { PRESETS } = require('../domain/presets.ts');
+function creativeDeck() {
+  return {
+    groupName: 'Reading habit', locale: 'en', artDirection: 'One continuous plum panorama with quiet orbs.',
+    theme: { from: '#191329', mid: '#292046', to: '#36214C', accent: '#D6EB9A', text: '#FFFFFF', mutedText: '#DDD5E8', angle: 90, motif: 'orbs' },
+    slides: COMPOSITIONS.map(composition => ({ strategicRole: 'Feature proof', userTakeaway: 'Track reading progress.',
+      headlineBefore: 'Make ', emphasis: 'reading', headlineAfter: ' a habit', supportingText: '',
+      screenshotBrief: 'Reading history with a populated week.', composition, compositionReason: 'Show the relevant UI clearly.' }))
+  };
+}
+test('creative response validates supported layouts, optional copy and strict theme contract', () => {
+  const deck = creativeDeck();
+  assert.deepEqual(validateDeckSpec(deck, 6), deck);
+  for (const change of [
+    d => { d.slides[0].composition = 'arbitrary-html'; },
+    d => { d.slides[0].background = '#FFFFFF'; },
+    d => { d.theme.motif = 'external-image'; },
+    d => { d.theme.angle = 181; },
+    d => { delete d.artDirection; },
+    d => { d.slides.pop(); }
+  ]) {
+    const invalid = structuredClone(deck); change(invalid);
+    assert.throws(() => validateDeckSpec(invalid, 6));
+  }
+});
+test('generated panorama uses adjacent crops of the same background and seam objects', () => {
+  const group = deckSpecToGroup(creativeDeck(), 'iphone-69');
+  assert.equal(group.gap, 0);
+  assert.equal(group.backgroundScope, 'group');
+  assert.ok(group.slides.every(slide => slide.background === null));
+  const scene = createScene(group);
+  assert.equal(scene.width, group.width * 6);
+  const first = renderSlideContent(scene, 0, 'panorama');
+  const second = renderSlideContent(scene, 1, 'panorama');
+  for (const svg of [first, second]) {
+    assert.ok(svg.includes(`width="${scene.width}"`));
+    assert.ok(svg.includes('transform="translate(0 0)"'));
+  }
+  const seamShape = group.elements.find(element => element.type === 'shape');
+  assert.ok(seamShape.x < group.width && seamShape.x + seamShape.width > group.width);
+});
+test('every composition fits each preset horizontally and persists as an editable project', () => {
+  for (const preset of PRESETS) {
+    const group = deckSpecToGroup(creativeDeck(), preset.id);
+    assert.equal(group.elements.filter(e => e.type === 'device').length, 7);
+    assert.equal(group.elements.filter(e => e.type === 'text').length, 6); // Empty supporting copy creates no element.
+    for (const element of group.elements.filter(e => e.type === 'device' || e.type === 'text')) {
+      const bounds = elementBounds(element);
+      const index = Math.floor((element.x + element.width / 2) / group.width);
+      assert.ok(bounds.x >= index * group.width - 0.01, `${preset.id}: left spill`);
+      assert.ok(bounds.x + bounds.width <= (index + 1) * group.width + 0.01, `${preset.id}: right spill`);
+      assert.ok(bounds.y >= 0, `${preset.id}: top spill`);
+      if (index !== 5) assert.ok(bounds.y + bounds.height <= group.height + 0.01, `${preset.id}: bottom spill`);
+    }
+    const project = createProject(); project.groups = [group];
+    assert.deepEqual(validateProject(project), project);
+  }
+});
+test('composition choices move text and devices, preserve copy and allow a clean single slide', () => {
+  const deck = creativeDeck();
+  deck.slides[3].supportingText = 'See your progress each week.';
+  const group = deckSpecToGroup(deck, 'play-landscape');
+  const texts = group.elements.filter(e => e.type === 'text');
+  assert.equal(texts[0].segments.map(s => s.text).join(''), 'Make reading a habit');
+  assert.ok(texts.some(e => e.segments[0].text === 'See your progress each week.'));
+  const left = texts.find(e => e.x >= group.width * 3 && e.x < group.width * 4);
+  const right = texts.find(e => e.x >= group.width * 4 && e.x < group.width * 5);
+  assert.ok(left.x - group.width * 3 < group.width / 2);
+  assert.ok(right.x - group.width * 4 > group.width / 2);
+  assert.ok(group.elements.some(e => e.type === 'device' && e.rotation !== 0));
+  deck.slides = [deck.slides[0]]; deck.theme.motif = 'none';
+  const single = deckSpecToGroup(validateDeckSpec(deck, 1), 'ipad-13');
+  assert.equal(single.slides.length, 1);
+  assert.equal(single.elements.length, 2);
+});

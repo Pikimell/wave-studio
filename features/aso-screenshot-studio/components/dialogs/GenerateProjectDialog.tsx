@@ -40,8 +40,8 @@ export function GenerateProjectDialog({ project, apiKey, setApiKey, model, setMo
         const result = await requestGeneration({ action, ...common, audienceProfile: audienceProfile.trim(), slidePlan: slidePlan.trim(), slideCount, locale, presetId }, apiKey.trim(), model.trim(), abort.signal);
         if ('slides' in result && !abort.signal.aborted) {
           const deck = result as GeneratedDeckSpec;
-          const productionNotes = deck.slides.map((slide, index) => `${index + 1}. ${slide.strategicRole}: ${slide.headlineBefore}${slide.emphasis}${slide.headlineAfter}\nЕкран: ${slide.screenshotBrief}`).join('\n\n');
-          onGenerate(deckSpecToGroup(deck, presetId), { ...metadata, slidePlan: `${slidePlan.trim()}\n\nProduction notes\n${productionNotes}` });
+          const productionNotes = deck.slides.map((slide, index) => `${index + 1}. ${slide.strategicRole}: ${slide.headlineBefore}${slide.emphasis}${slide.headlineAfter}\nКлючова думка: ${slide.userTakeaway}\nКомпозиція: ${slide.composition} — ${slide.compositionReason}\nЕкран: ${slide.screenshotBrief}`).join('\n\n');
+          onGenerate(deckSpecToGroup(deck, presetId), { ...metadata, slidePlan: `${slidePlan.trim()}\n\nProduction notes\n${deck.artDirection}\n\n${productionNotes}`.slice(0, 30000) });
         }
       }
     } catch (reason) { if (!abort.signal.aborted) setError(reason instanceof Error ? reason.message : 'Не вдалося виконати генерацію.'); }
@@ -63,10 +63,10 @@ export function GenerateProjectDialog({ project, apiKey, setApiKey, model, setMo
         <label className="aso-field"><span>Клієнт, проблема і рішення</span><textarea autoFocus rows={16} maxLength={30000} required value={audienceProfile} onChange={event => setAudienceProfile(event.target.value)} /></label>
       </section>}
       {step === 3 && <section className={styles.content} aria-label="Крок 3: план слайдів">
-        <div><h3>Підтвердьте план</h3><p>Перші три слайди мають дати найсильніший hook, показати ключовий біль/результат і довести обіцянку продуктом. Відредагуйте план перед фінальною генерацією JSON.</p></div>
+        <div><h3>Підтвердьте план</h3><p>Перевірте історію, точні заголовки, екрани та композиції. Перші слайди мають пояснити продукт, його користь і довести обіцянку. Вся серія матиме єдиний наскрізний фон.</p></div>
         <label className="aso-field"><span>План слайдів</span><textarea autoFocus rows={14} maxLength={30000} required value={slidePlan} onChange={event => setSlidePlan(event.target.value)} /></label>
         <div className="aso-grid2"><label className="aso-field"><span>Фінальна кількість</span><input type="number" min={1} max={10} value={slideCount} onChange={event => setSlideCount(Math.max(1, Math.min(10, Number(event.target.value) || 1)))} /></label><label className="aso-field"><span>Розмір групи</span><select value={presetId} onChange={event => setPresetId(event.target.value)}><PresetOptions /></select></label></div>
-        <p className={styles.note}>Буде створено нову редаговану групу: заголовки з акцентом, підзаголовки, фон і mockup-плейсхолдери. Завантажте відповідні екрани за підказками з плану.</p>
+        <p className={styles.note}>Буде створено редаговану групу з різними композиціями, заголовками з акцентом, доречними підзаголовками та суцільним фоном на всю серію. Завантажте відповідні екрани за підказками з плану.</p>
       </section>}
       <details className={styles.connection} open={!apiKey}><summary>Підключення OpenAI</summary><div className="aso-grid2"><label className="aso-field"><span>API key</span><input type="password" autoComplete="off" spellCheck={false} value={apiKey} onChange={event => setApiKey(event.target.value)} disabled={busy} /></label><label className="aso-field"><span>Модель</span><input list="aso-generation-models" value={model} onChange={event => setModel(event.target.value)} disabled={busy} /><datalist id="aso-generation-models"><option value="gpt-4.1-mini" /><option value="gpt-4.1" /></datalist></label></div><p>Ключ зберігається лише в пам’яті вкладки. Запити оплачуються вашим API-акаунтом.</p></details>
       {error && <p className={styles.error} role="alert">{error}</p>}

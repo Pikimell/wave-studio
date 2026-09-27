@@ -43,3 +43,14 @@ export async function persistAsset(asset: StoredAsset): Promise<void> {
     });
   } finally { db.close(); }
 }
+export async function deleteAsset(id: string): Promise<void> {
+  const db = await openDatabase();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction('assets', 'readwrite');
+      transaction.objectStore('assets').delete(id);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = transaction.onabort = () => reject(new Error('Не вдалося видалити зображення з локального сховища.'));
+    });
+  } finally { db.close(); }
+}

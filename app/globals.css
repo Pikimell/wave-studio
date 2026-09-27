@@ -1,3 +1,4 @@
+@import './design-tokens.css';
 @import '../styles.css';
 
 .add-wave svg {

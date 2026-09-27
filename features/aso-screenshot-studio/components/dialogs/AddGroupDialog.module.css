@@ -1,21 +1,110 @@
-.scope :global(.aso-row){display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.scope :global(.aso-row) h2{margin:0;}
-.scope:global(.aso-dialog){width:440px;max-width:calc(100vw - 32px);border:1px solid #4a5c70;border-radius:14px;padding:24px;background:#19232f;color:#edf3fa;box-shadow:0 24px 90px #0009;}
-.scope:global(.aso-dialog)::backdrop{background:#070e18bb;backdrop-filter:blur(5px);}
-.scope:global(.aso-dialog) :global(.aso-row){margin-bottom:15px;}
-.scope:global(.aso-dialog) p{font-size:12px;}
-.scope:global(.aso-dialog) form>button{width:100%;margin-top:7px;}
-.scope :global(.aso-check){display:flex;align-items:center;gap:8px;margin:0 0 15px;font-size:11px;color:#c0cede;}
-.scope :global(.aso-check) input{accent-color:#b4ef60;}
-.scope :global(.aso-warning){padding:10px;border:1px solid #7e6334;border-radius:6px;background:#3c3121;color:#fde3ac!important;font-size:11px;}
-.scope:global(.aso-dialog){max-height:90dvh;overflow:auto;}
+.scope :global(.aso-row) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.scope :global(.aso-row) h2 {
+  margin: 0;
+}
+.scope:global(.aso-dialog) {
+  width: 440px;
+  max-width: calc(100vw - 32px);
+  border: 1px solid var(--aso-border-strong);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  background: var(--aso-panel);
+  color: var(--aso-text);
+  box-shadow: var(--aso-shadow-modal);
+}
+.scope:global(.aso-dialog)::backdrop {
+  background: var(--aso-modal-backdrop);
+  backdrop-filter: blur(5px);
+}
+.scope:global(.aso-dialog) :global(.aso-row) {
+  margin-bottom: 15px;
+}
+.scope:global(.aso-dialog) p {
+  font-size: 12px;
+}
+.scope:global(.aso-dialog) form > button {
+  width: 100%;
+  margin-top: 7px;
+}
+.scope :global(.aso-check) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 15px;
+  font-size: 11px;
+  color: var(--aso-muted);
+}
+.scope :global(.aso-check) input {
+  accent-color: var(--aso-accent);
+}
+.scope :global(.aso-warning) {
+  padding: 10px;
+  border: 1px solid var(--aso-warning-border);
+  border-radius: var(--radius-md);
+  background: var(--aso-warning-bg);
+  color: var(--aso-warning-text) !important;
+  font-size: 11px;
+}
+.scope:global(.aso-dialog) {
+  max-height: 90dvh;
+  overflow: auto;
+}
 
-.scope :global(.aso-field){display:flex;flex-direction:column;gap:7px;margin-bottom:15px;min-width:0;}
-.scope :global(.aso-field)>span{font-size:11px;color:#aabccd;}
-.scope :global(.aso-field) input{width:100%;min-width:0;background:#111b27;border:1px solid var(--aso-border);border-radius:6px;padding:9px;color:#edf3fa;}
-.scope :global(.aso-field) select{width:100%;min-width:0;background:#111b27;border:1px solid var(--aso-border);border-radius:6px;padding:9px;color:#edf3fa;}
-.scope :global(.aso-field) textarea{width:100%;min-width:0;background:#111b27;border:1px solid var(--aso-border);border-radius:6px;padding:9px;color:#edf3fa;}
-.scope :global(.aso-field) textarea{resize:vertical;line-height:1.6;}
-.scope :global(.aso-field) input[type=color]{height:36px;padding:4px;cursor:pointer;}
+.scope :global(.aso-field) {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 15px;
+  min-width: 0;
+}
+.scope :global(.aso-field) > span {
+  font-size: 11px;
+  color: var(--aso-muted);
+}
+.scope :global(.aso-field) input {
+  width: 100%;
+  min-width: 0;
+  background: var(--aso-bg-subtle);
+  border: 1px solid var(--aso-border);
+  border-radius: var(--radius-md);
+  padding: 9px;
+  color: var(--aso-text);
+}
+.scope :global(.aso-field) select {
+  width: 100%;
+  min-width: 0;
+  background: var(--aso-bg-subtle);
+  border: 1px solid var(--aso-border);
+  border-radius: var(--radius-md);
+  padding: 9px;
+  color: var(--aso-text);
+}
+.scope :global(.aso-field) textarea {
+  width: 100%;
+  min-width: 0;
+  background: var(--aso-bg-subtle);
+  border: 1px solid var(--aso-border);
+  border-radius: var(--radius-md);
+  padding: 9px;
+  color: var(--aso-text);
+}
+.scope :global(.aso-field) textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+.scope :global(.aso-field) input[type="color"] {
+  height: 36px;
+  padding: 4px;
+  cursor: pointer;
+}
 
-.scope :global(.aso-grid2){display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.scope :global(.aso-grid2) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}

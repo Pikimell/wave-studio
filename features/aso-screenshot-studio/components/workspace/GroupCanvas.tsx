@@ -136,8 +136,8 @@ export function GroupCanvas({ group, selection, select, zoom, collapsed, onToggl
         updateGesture(event);
       }} onPointerUp={event => finish(false, event)} onPointerCancel={event => finish(false, event)} onLostPointerCapture={event => finish(false, event)}>
         {scene.slides.map((slide, index) => <SlideViewport key={slide.id} scene={scene} index={index} namespace={namespace} />)}
-        {selection?.kind === 'slide' && selection.groupId === group.id && scene.slides.filter(s => s.id === selection.slideId).map(s => <rect key={s.id} {...s.rect} fill="none" stroke="#a3e635" strokeWidth={2 / scale} pointerEvents="none" />)}
-        {selection?.groupId === group.id && scene.slides.map(slide => <rect key={`padding-${slide.id}`} x={slide.rect.x + slide.padding.left} y={slide.padding.top} width={Math.max(0, group.width - slide.padding.left - slide.padding.right)} height={Math.max(0, group.height - slide.padding.top - slide.padding.bottom)} fill="none" stroke="#cbd5e1" strokeOpacity={0.25} strokeWidth={1 / scale} strokeDasharray={`${4 / scale} ${4 / scale}`} pointerEvents="none" />)}
+        {selection?.kind === 'slide' && selection.groupId === group.id && scene.slides.filter(s => s.id === selection.slideId).map(s => <rect key={s.id} {...s.rect} fill="none" stroke="var(--aso-focus)" strokeWidth={2 / scale} pointerEvents="none" />)}
+        {selection?.groupId === group.id && scene.slides.map(slide => <rect key={`padding-${slide.id}`} x={slide.rect.x + slide.padding.left} y={slide.padding.top} width={Math.max(0, group.width - slide.padding.left - slide.padding.right)} height={Math.max(0, group.height - slide.padding.top - slide.padding.bottom)} fill="none" stroke="var(--aso-guide-safe)" strokeOpacity={0.25} strokeWidth={1 / scale} strokeDasharray={`${4 / scale} ${4 / scale}`} pointerEvents="none" />)}
         <SnapGuides guides={guides} scale={scale} />
         {selected.map(element => <SelectionOverlay key={element.id} element={element} scale={scale} onStart={(event, mode) => start(event, element, mode)} />)}
       </svg>
