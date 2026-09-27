@@ -10,6 +10,7 @@ export async function localize(input: unknown, fetcher: typeof fetch = fetch): P
   if (typeof model !== 'string' || !/^[a-zA-Z0-9._:-]{1,150}$/.test(model)) throw new LocalizationError('Вкажіть коректний model ID.', 400);
   let payload;
   try { payload = validatePayload(raw); } catch (e) { throw new LocalizationError(e instanceof Error ? e.message : 'Некоректний текст.', 400); }
+  if (payload.targetLocales.length !== 1) throw new LocalizationError('Надсилайте кожну цільову мову окремим запитом.', 400);
   let response: Response;
   try {
     response = await fetcher('https://api.openai.com/v1/chat/completions', {

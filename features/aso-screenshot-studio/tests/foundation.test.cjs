@@ -237,6 +237,8 @@ const { pngFilename } = require('../services/exportPng.ts');
 const { inspectGroup } = require('../services/preflight.ts');
 const { collectText, validatePayload, validateTranslations, translatedGroups } = require('../domain/localization.ts');
 const { localize } = require('../server/localization.ts');
+const { requestLocalization } = require('../services/localizationClient.ts');
+const { LOCALIZATION_PROMPT } = require('../server/prompts.ts');
 test('ZIP headers, UTF-8 names and CRC are accepted by Python zipfile', async () => {
   assert.equal(crc32(new TextEncoder().encode('123456789')), 0xcbf43926);
   const zip = await createZip([{ name: 'uk_01.png', blob: new Blob(['one']) }, { name: 'Україна_02.png', blob: new Blob(['two']) }]);
@@ -289,12 +291,31 @@ test('translation validates complete ID/locale/line correspondence and preserves
 test('localization sends only text to fixed OpenAI endpoint and never echoes credential errors', async () => {
   const { payload, translations } = localizableFixture(); const apiKey = 'test-only-key-never-sent-to-a-real-service';
   let request;
-  const fetcher = async (url, options) => { request = { url, options }; return Response.json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ translations }) } }] }); };
-  const result = await localize({ apiKey, model: 'gpt-4.1-mini', payload: { ...payload, screenshot: 'private' } }, fetcher);
-  assert.equal(result.length, 2); assert.equal(request.url, 'https://api.openai.com/v1/chat/completions');
+  const singleLocalePayload = { ...payload, targetLocales: ['uk'] };
+  const fetcher = async (url, options) => { request = { url, options }; return Response.json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ translations: [translations[0]] }) } }] }); };
+  const result = await localize({ apiKey, model: 'gpt-4.1-mini', payload: { ...singleLocalePayload, screenshot: 'private' } }, fetcher);
+  assert.equal(result.length, 1); assert.equal(request.url, 'https://api.openai.com/v1/chat/completions');
   assert.ok(!request.options.body.includes(apiKey)); assert.ok(!request.options.body.includes('private'));
   assert.equal(JSON.parse(request.options.body).store, false);
-  await assert.rejects(localize({ apiKey, model: 'gpt-4.1-mini', payload }, async () => Response.json({ error: { message: apiKey } }, { status: 401 })), error => !error.message.includes(apiKey) && error.message.includes('відхилив'));
+  assert.match(LOCALIZATION_PROMPT, /Do not translate word for word/);
+  await assert.rejects(localize({ apiKey, model: 'gpt-4.1-mini', payload }, fetcher), error => error.status === 400);
+  await assert.rejects(localize({ apiKey, model: 'gpt-4.1-mini', payload: singleLocalePayload }, async () => Response.json({ error: { message: apiKey } }, { status: 401 })), error => !error.message.includes(apiKey) && error.message.includes('відхилив'));
+});
+test('localization requests each target locale separately and returns only complete results', async () => {
+  const { payload, translations } = localizableFixture();
+  const requested = [];
+  const fetcher = async (_url, options) => {
+    const sent = JSON.parse(options.body).payload;
+    requested.push(sent.targetLocales);
+    return Response.json({ translations: [translations.find(item => item.locale === sent.targetLocales[0])] });
+  };
+  const result = await requestLocalization(payload, 'test-key', 'test-model', new AbortController().signal, fetcher);
+  assert.deepEqual(requested, [['uk'], ['de']]);
+  assert.deepEqual(result, translations);
+  await assert.rejects(requestLocalization(payload, 'test-key', 'test-model', new AbortController().signal, async (_url, options) => {
+    const locale = JSON.parse(options.body).payload.targetLocales[0];
+    return locale === 'uk' ? Response.json({ translations: [translations[0]] }) : Response.json({ error: 'Другий переклад не вдався.' }, { status: 502 });
+  }), /Другий переклад не вдався/);
 });
 const { copyProject, deleteProject, getProject, listProjects, saveProject } = require('../services/projectStore.ts');
 test('Shift resize preserves aspect ratio and the opposite corner', () => {
