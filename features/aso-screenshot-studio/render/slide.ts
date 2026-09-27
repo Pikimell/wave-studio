@@ -13,5 +13,5 @@ export function renderSlideContent(scene: Scene, index: number, namespace: strin
 export function renderSlideSvg(scene: Scene, index: number, namespace = 'export') {
   const slide = scene.slides[index];
   if (!slide) throw new Error('Слайд не знайдено');
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${scene.group.width}" height="${scene.height}" viewBox="${slide.rect.x} 0 ${scene.group.width} ${scene.height}">${renderSlideContent(scene, index, namespace)}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${scene.group.width}" height="${scene.height}" viewBox="${slide.rect.x} 0 ${scene.group.width} ${scene.height}">${scene.fontCss ? `<style>${scene.fontCss}</style>` : ''}${renderSlideContent(scene, index, namespace)}</svg>`;
 }

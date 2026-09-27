@@ -1510,6 +1510,11 @@ Shift + Arrow    Move larger step
 
 - create project;
 - project name;
+- local project library;
+- create project from scratch;
+- create project from copy;
+- create project from JSON template;
+- delete local project;
 - save JSON;
 - import JSON.
 
@@ -1550,6 +1555,13 @@ Shift + Arrow    Move larger step
 - copy/paste;
 - delete.
 
+## Element resizing
+
+- corner resize handles;
+- side resize handles for independent width/height changes;
+- proportional resizing with locked aspect ratio;
+- Shift-modified proportional scaling on canvas.
+
 ## Text
 
 - typography;
@@ -1560,11 +1572,36 @@ Shift + Arrow    Move larger step
 - rich text;
 - manual line breaks.
 
+## Fonts
+
+- bundled font library with Cyrillic support;
+- searchable font picker;
+- local custom font upload;
+- embed selected fonts into PNG export.
+
 ## Device
 
 - predefined model/variant;
+- grouped device library for iPhone, Android, iPad, Mac and Watch;
+- model-specific 2D mockups;
+- angled 2D device variant;
 - screenshot upload;
+- screenshot upload/change directly from canvas;
 - auto-fit into device mask.
+
+## Images / Uploads
+
+- uploads section in the left sidebar;
+- reuse uploaded images;
+- natural image sizing based on source file dimensions;
+- store source filename for image elements;
+- show missing-file filename/placeholder when an asset is unavailable.
+
+## Templates
+
+- local JSON template catalog;
+- template cards with previews of the first slides;
+- starter templates with title, subtitle and device compositions.
 
 ## Canvas
 
@@ -1579,6 +1616,8 @@ Shift + Arrow    Move larger step
 - group/slide;
 - solid;
 - gradient;
+- predefined multi-color gradient presets;
+- editable middle gradient color;
 - image;
 - stretch/cover;
 - whole-group/repeat-per-slide.
@@ -1593,6 +1632,13 @@ Shift + Arrow    Move larger step
 - collapsible bottom panel;
 - current group;
 - 5-second debounce regeneration.
+
+## Editor UI
+
+- collapsible left sidebar;
+- collapsible right Inspector;
+- collapsible Inspector sections;
+- collapsible left-panel sections for gradients, elements and uploads.
 
 ## Export
 
@@ -1612,7 +1658,6 @@ Shift + Arrow    Move larger step
 - automatic ASO copy generation;
 - template marketplace/library;
 - reusable brand styles;
-- custom fonts;
 - batch localization;
 - automatic resizing between App Store device formats;
 - Google Play adaptation;
@@ -1640,27 +1685,25 @@ Shift + Arrow    Move larger step
 6.  Чи потрібні keyboard nudging settings.
 7.  Які саме App Store / Google Play presets входять у першу версію.
 8.  Device library та формат device masks.
-9.  Підтримка custom fonts.
-10. Image element properties.
-11. Shape properties.
-12. Group deletion behaviour.
-13. Autosave/localStorage strategy.
-14. Чи JSON save є єдиним persistence-механізмом MVP, чи буде локальне
+9.  Image element properties.
+10. Shape properties.
+11. Group deletion behaviour.
+12. Autosave/localStorage strategy.
+13. Чи JSON save є єдиним persistence-механізмом MVP, чи буде локальне
     autosave.
-15. Asset persistence між reload браузера.
-16. Максимальні технічні розміри canvas.
-17. Export performance для великих груп.
-18. Точна поведінка drag-and-drop між групами.
-19. Чи можна copy/paste між групами.
-20. Чи можна copy/paste між різними проєктами.
-21. Responsive поведінка самого editor UI.
-22. Web vs macOS як перша платформа.
-23. Account/auth/cloud storage.
-24. Exact AI provider/API strategy для localization.
-25. Localization glossary/context.
-26. Pricing/limits.
-27. Template system.
-28. App Store / Google Play preset update mechanism.
+14. Asset persistence між reload браузера.
+15. Максимальні технічні розміри canvas.
+16. Export performance для великих груп.
+17. Точна поведінка drag-and-drop між групами.
+18. Чи можна copy/paste між групами.
+19. Чи можна copy/paste між різними проєктами.
+20. Responsive поведінка самого editor UI.
+21. Web vs macOS як перша платформа.
+22. Account/auth/cloud storage.
+23. Exact AI provider/API strategy для localization.
+24. Localization glossary/context.
+25. Pricing/limits.
+26. App Store / Google Play preset update mechanism.
 
 ---
 

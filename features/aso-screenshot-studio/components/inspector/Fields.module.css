@@ -1,0 +1,7 @@
+.scope:global(.aso-field){display:flex;flex-direction:column;gap:7px;margin-bottom:15px;min-width:0;}
+.scope:global(.aso-field)>span{font-size:11px;color:#aabccd;}
+.scope:global(.aso-field) input{width:100%;min-width:0;background:#111b27;border:1px solid var(--aso-border);border-radius:6px;padding:9px;color:#edf3fa;}
+.scope:global(.aso-field) select{width:100%;min-width:0;background:#111b27;border:1px solid var(--aso-border);border-radius:6px;padding:9px;color:#edf3fa;}
+.scope:global(.aso-field) textarea{width:100%;min-width:0;background:#111b27;border:1px solid var(--aso-border);border-radius:6px;padding:9px;color:#edf3fa;}
+.scope:global(.aso-field) textarea{resize:vertical;line-height:1.6;}
+.scope:global(.aso-field) input[type=color]{height:36px;padding:4px;cursor:pointer;}

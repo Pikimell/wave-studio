@@ -1,5 +1,6 @@
 import type { Group } from '../domain/schema';
 import type { StoredAsset } from './assetStore';
+import type { StoredFont } from './fontStore';
 import { filePart, pngFilename, prepareExport, renderPng } from './exportPng';
 const crcTable = Array.from({ length: 256 }, (_, n) => {
   for (let bit = 0; bit < 8; bit++) n = n & 1 ? 0xedb88320 ^ (n >>> 1) : n >>> 1;
@@ -36,8 +37,8 @@ export async function createZip(files: { name: string; blob: Blob }[]): Promise<
 export function zipFilename(projectName: string, group: Group) {
   return [projectName, group.prefix, group.variant, group.presetId, group.locale].map(filePart).filter(Boolean).join('_') + '.zip';
 }
-export async function exportGroupZip(group: Group, assets: Record<string, StoredAsset>, onProgress: (done: number, total: number) => void): Promise<Blob> {
-  const scene = await prepareExport(group, assets), files: { name: string; blob: Blob }[] = [];
+export async function exportGroupZip(group: Group, assets: Record<string, StoredAsset>, onProgress: (done: number, total: number) => void, fonts: Record<string, StoredFont> = {}): Promise<Blob> {
+  const scene = await prepareExport(group, assets, fonts), files: { name: string; blob: Blob }[] = [];
   let bytes = 0;
   for (let index = 0; index < group.slides.length; index++) {
     const blob = await renderPng(scene, index); bytes += blob.size;

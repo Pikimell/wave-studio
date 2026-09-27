@@ -4,12 +4,13 @@
 
 ## Інтеграція із сайтом
 
-ASO Screenshot Studio відкриватиметься на окремому маршруті `/aso-screenshot-studio`. У `features/studio-hub/components/StudioHub.tsx` планується додати посилання на нього. Це відповідає наявному поділу репозиторію на `app/` і незалежні інструменти в `features/` та не вимагає тримати великий редактор змонтованим поруч з іншими студіями.
+ASO Screenshot Studio відкривається на `/aso-screenshot-studio`: тут розташовані список локальних проєктів і стартові шаблони. Редактор конкретного проєкту відкривається на `/aso-screenshot-studio/editor?project=<id>`. Посилання зі StudioHub веде до списку.
 
 ```text
 app/
   aso-screenshot-studio/
-    page.tsx                         # Сторінка редактора
+    page.tsx                         # Список проєктів і вибір старту
+    editor/page.tsx                  # Редактор конкретного проєкту
   api/
     aso-screenshot-studio/
       localize/
@@ -19,6 +20,7 @@ features/
   aso-screenshot-studio/
     components/
       AsoScreenshotStudio.tsx        # Кореневий компонент редактора
+      home/                          # Список проєктів і створення з шаблону/копії
       toolbar/                       # Дії проєкту, групи, zoom, undo/redo
       sidebar/                       # Каталог тексту, пристроїв, зображень, фігур
       workspace/
@@ -48,6 +50,8 @@ features/
       useWorkspaceZoom.ts            # Масштаб і позиція видимої області
     services/
       projectFiles.ts                # Імпорт/експорт JSON, перевірка версії
+      projectStore.ts                # Множина локальних проєктів у localStorage
+      templateCatalog.ts             # Каталог готових JSON-шаблонів
       assetStore.ts                  # Користувацькі зображення та посилання
       exportPng.ts                   # PNG у фактичному розмірі слайда
       exportZip.ts                   # ZIP із PNG усієї групи
@@ -58,6 +62,7 @@ features/
 
 public/
   aso-screenshot-studio/
+    templates/                        # JSON-шаблони та index.json
     devices/                          # Підготовлені 2D мокапи та маски екрана
     decorations/                      # Декоративні ресурси бібліотеки
 ```

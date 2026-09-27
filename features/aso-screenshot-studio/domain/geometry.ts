@@ -19,12 +19,21 @@ export function hitTest(group: Group, x: number, y: number) {
   return [...group.elements].sort((a, b) => b.zIndex - a.zIndex || b.id.localeCompare(a.id)).find(e => containsPoint(e, x, y));
 }
 export type ResizeCorner = 'nw' | 'ne' | 'sw' | 'se';
-/** Resize in the rotated local axes, keeping the opposite corner fixed. */
-export function resizeElement(element: ElementGeometry, dx: number, dy: number, corner: ResizeCorner): ElementGeometry {
+export type ResizeHandle = ResizeCorner | 'n' | 'e' | 's' | 'w';
+/** Resize in the rotated local axes, keeping the opposite corner or edge fixed. */
+export function resizeElement(element: ElementGeometry, dx: number, dy: number, handle: ResizeHandle, keepRatio = false): ElementGeometry {
   const radians = element.rotation * Math.PI / 180, cos = Math.cos(radians), sin = Math.sin(radians);
-  const sx = corner.endsWith('e') ? 1 : -1, sy = corner.startsWith('s') ? 1 : -1;
-  const width = Math.min(12000, Math.max(1, element.width + sx * (dx * cos + dy * sin)));
-  const height = Math.min(12000, Math.max(1, element.height + sy * (-dx * sin + dy * cos)));
+  const sx = handle.includes('e') ? 1 : handle.includes('w') ? -1 : 0;
+  const sy = handle.includes('s') ? 1 : handle.includes('n') ? -1 : 0;
+  let width = Math.min(12000, Math.max(1, element.width + sx * (dx * cos + dy * sin)));
+  let height = Math.min(12000, Math.max(1, element.height + sy * (-dx * sin + dy * cos)));
+  if (keepRatio) {
+    const widthScale = width / element.width, heightScale = height / element.height;
+    const scale = sx === 0 ? heightScale : sy === 0 ? widthScale : Math.abs(widthScale - 1) >= Math.abs(heightScale - 1) ? widthScale : heightScale;
+    const clamped = Math.max(1 / Math.min(element.width, element.height), Math.min(scale, 12000 / Math.max(element.width, element.height)));
+    width = element.width * clamped;
+    height = element.height * clamped;
+  }
   const lx = sx * (width - element.width) / 2, ly = sy * (height - element.height) / 2;
   return { ...element, x: element.x + element.width / 2 + lx * cos - ly * sin - width / 2,
     y: element.y + element.height / 2 + lx * sin + ly * cos - height / 2, width, height };

@@ -1,10 +1,13 @@
 import { newId } from '../domain/schema';
 export interface StoredAsset { id: string; name: string; mimeType: string; width: number; height: number; blob: Blob }
 const DATABASE = 'aso-screenshot-studio-assets';
-async function openDatabase(): Promise<IDBDatabase> {
+export async function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DATABASE, 1);
-    request.onupgradeneeded = () => request.result.createObjectStore('assets', { keyPath: 'id' });
+    const request = indexedDB.open(DATABASE, 2);
+    request.onupgradeneeded = () => {
+      if (!request.result.objectStoreNames.contains('assets')) request.result.createObjectStore('assets', { keyPath: 'id' });
+      if (!request.result.objectStoreNames.contains('fonts')) request.result.createObjectStore('fonts', { keyPath: 'family' });
+    };
     request.onerror = () => reject(new Error('IndexedDB недоступна'));
     request.onsuccess = () => resolve(request.result);
     request.onblocked = () => reject(new Error('Сховище зайняте іншою вкладкою'));

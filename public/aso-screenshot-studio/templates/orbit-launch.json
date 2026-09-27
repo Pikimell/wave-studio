@@ -1,0 +1,323 @@
+{
+  "schemaVersion": 1,
+  "id": "template-orbit-launch",
+  "name": "Orbit Launch",
+  "createdAt": "2026-09-27T00:00:00.000Z",
+  "groups": [
+    {
+      "id": "group-orbit-launch",
+      "name": "iphone-69",
+      "platform": "app-store",
+      "presetId": "iphone-69",
+      "width": 1320,
+      "height": 2868,
+      "locale": "en-US",
+      "prefix": "orbit-launch",
+      "variant": "",
+      "gap": 80,
+      "background": {
+        "type": "gradient",
+        "from": "#101A3F",
+        "mid": "#293C79",
+        "to": "#7356A8",
+        "angle": 45
+      },
+      "backgroundScope": "slide",
+      "slides": [
+        {
+          "id": "slide-orbit-launch-1",
+          "background": {
+            "type": "gradient",
+            "from": "#101A3F",
+            "mid": "#293C79",
+            "to": "#7356A8",
+            "angle": 45
+          },
+          "padding": {
+            "top": 80,
+            "right": 80,
+            "bottom": 80,
+            "left": 80
+          }
+        },
+        {
+          "id": "slide-orbit-launch-2",
+          "background": {
+            "type": "gradient",
+            "from": "#181A47",
+            "mid": "#60418C",
+            "to": "#A96AA5",
+            "angle": 135
+          },
+          "padding": {
+            "top": 80,
+            "right": 80,
+            "bottom": 80,
+            "left": 80
+          }
+        },
+        {
+          "id": "slide-orbit-launch-3",
+          "background": {
+            "type": "gradient",
+            "from": "#102D45",
+            "mid": "#245C78",
+            "to": "#517DC4",
+            "angle": 45
+          },
+          "padding": {
+            "top": 80,
+            "right": 80,
+            "bottom": 80,
+            "left": 80
+          }
+        }
+      ],
+      "elements": [
+        {
+          "id": "title-orbit-launch-1",
+          "type": "text",
+          "x": 80,
+          "y": 205,
+          "width": 1160,
+          "height": 275,
+          "rotation": 0,
+          "zIndex": 2,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-title-orbit-launch-1",
+              "text": "Your day,\nbeautifully in sync.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 104,
+            "fontWeight": 700,
+            "italic": false,
+            "color": "#FFFFFF"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "subtitle-orbit-launch-1",
+          "type": "text",
+          "x": 80,
+          "y": 495,
+          "width": 1160,
+          "height": 135,
+          "rotation": 0,
+          "zIndex": 3,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-subtitle-orbit-launch-1",
+              "text": "One calm place for every moment.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 46,
+            "fontWeight": 500,
+            "italic": false,
+            "color": "#CFD9F7"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "device-orbit-launch-1",
+          "type": "device",
+          "x": 250,
+          "y": 845,
+          "width": 820,
+          "height": 1666,
+          "rotation": 0,
+          "zIndex": 1,
+          "opacity": 1,
+          "deviceId": "iphone-16-max",
+          "screenshot": null
+        },
+        {
+          "id": "title-orbit-launch-2",
+          "type": "text",
+          "x": 1480,
+          "y": 205,
+          "width": 1160,
+          "height": 275,
+          "rotation": 0,
+          "zIndex": 2,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-title-orbit-launch-2",
+              "text": "Everything you need,\nright on time.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 104,
+            "fontWeight": 700,
+            "italic": false,
+            "color": "#FFFFFF"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "subtitle-orbit-launch-2",
+          "type": "text",
+          "x": 1480,
+          "y": 495,
+          "width": 1160,
+          "height": 135,
+          "rotation": 0,
+          "zIndex": 3,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-subtitle-orbit-launch-2",
+              "text": "Stay focused on the next great thing.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 46,
+            "fontWeight": 500,
+            "italic": false,
+            "color": "#CFD9F7"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "device-orbit-launch-2",
+          "type": "device",
+          "x": 1650,
+          "y": 845,
+          "width": 820,
+          "height": 1666,
+          "rotation": 0,
+          "zIndex": 1,
+          "opacity": 1,
+          "deviceId": "iphone-16-max",
+          "screenshot": null
+        },
+        {
+          "id": "title-orbit-launch-3",
+          "type": "text",
+          "x": 2880,
+          "y": 205,
+          "width": 1160,
+          "height": 275,
+          "rotation": 0,
+          "zIndex": 2,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-title-orbit-launch-3",
+              "text": "Make room for\nwhat matters.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 104,
+            "fontWeight": 700,
+            "italic": false,
+            "color": "#FFFFFF"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "subtitle-orbit-launch-3",
+          "type": "text",
+          "x": 2880,
+          "y": 495,
+          "width": 1160,
+          "height": 135,
+          "rotation": 0,
+          "zIndex": 3,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-subtitle-orbit-launch-3",
+              "text": "Plan less. Enjoy more.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 46,
+            "fontWeight": 500,
+            "italic": false,
+            "color": "#CFD9F7"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "device-orbit-launch-3",
+          "type": "device",
+          "x": 3050,
+          "y": 845,
+          "width": 820,
+          "height": 1666,
+          "rotation": 0,
+          "zIndex": 1,
+          "opacity": 1,
+          "deviceId": "iphone-16-max",
+          "screenshot": null
+        }
+      ]
+    }
+  ]
+}

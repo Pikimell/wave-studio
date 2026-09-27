@@ -1,0 +1,323 @@
+{
+  "schemaVersion": 1,
+  "id": "template-pixel-flow",
+  "name": "Pixel Flow",
+  "createdAt": "2026-09-27T00:00:00.000Z",
+  "groups": [
+    {
+      "id": "group-pixel-flow",
+      "name": "play-portrait",
+      "platform": "google-play",
+      "presetId": "play-portrait",
+      "width": 1080,
+      "height": 1920,
+      "locale": "en-US",
+      "prefix": "pixel-flow",
+      "variant": "",
+      "gap": 80,
+      "background": {
+        "type": "gradient",
+        "from": "#146CC7",
+        "mid": "#42B8CB",
+        "to": "#8DDDC9",
+        "angle": 45
+      },
+      "backgroundScope": "slide",
+      "slides": [
+        {
+          "id": "slide-pixel-flow-1",
+          "background": {
+            "type": "gradient",
+            "from": "#146CC7",
+            "mid": "#42B8CB",
+            "to": "#8DDDC9",
+            "angle": 45
+          },
+          "padding": {
+            "top": 80,
+            "right": 80,
+            "bottom": 80,
+            "left": 80
+          }
+        },
+        {
+          "id": "slide-pixel-flow-2",
+          "background": {
+            "type": "gradient",
+            "from": "#374DD1",
+            "mid": "#8D5EE7",
+            "to": "#EB81BA",
+            "angle": 135
+          },
+          "padding": {
+            "top": 80,
+            "right": 80,
+            "bottom": 80,
+            "left": 80
+          }
+        },
+        {
+          "id": "slide-pixel-flow-3",
+          "background": {
+            "type": "gradient",
+            "from": "#092C45",
+            "mid": "#145D78",
+            "to": "#247D85",
+            "angle": 45
+          },
+          "padding": {
+            "top": 80,
+            "right": 80,
+            "bottom": 80,
+            "left": 80
+          }
+        }
+      ],
+      "elements": [
+        {
+          "id": "title-pixel-flow-1",
+          "type": "text",
+          "x": 80,
+          "y": 110,
+          "width": 920,
+          "height": 190,
+          "rotation": 0,
+          "zIndex": 2,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-title-pixel-flow-1",
+              "text": "Meet your\nnew rhythm.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 76,
+            "fontWeight": 700,
+            "italic": false,
+            "color": "#FFFFFF"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "subtitle-pixel-flow-1",
+          "type": "text",
+          "x": 80,
+          "y": 330,
+          "width": 920,
+          "height": 100,
+          "rotation": 0,
+          "zIndex": 3,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-subtitle-pixel-flow-1",
+              "text": "All your essentials, in one view.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 34,
+            "fontWeight": 500,
+            "italic": false,
+            "color": "#DBF4F4"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "device-pixel-flow-1",
+          "type": "device",
+          "x": 260,
+          "y": 640,
+          "width": 560,
+          "height": 1182,
+          "rotation": 0,
+          "zIndex": 1,
+          "opacity": 1,
+          "deviceId": "pixel-9-pro",
+          "screenshot": null
+        },
+        {
+          "id": "title-pixel-flow-2",
+          "type": "text",
+          "x": 1240,
+          "y": 110,
+          "width": 920,
+          "height": 190,
+          "rotation": 0,
+          "zIndex": 2,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-title-pixel-flow-2",
+              "text": "Made for\nevery moment.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 76,
+            "fontWeight": 700,
+            "italic": false,
+            "color": "#FFFFFF"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "subtitle-pixel-flow-2",
+          "type": "text",
+          "x": 1240,
+          "y": 330,
+          "width": 920,
+          "height": 100,
+          "rotation": 0,
+          "zIndex": 3,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-subtitle-pixel-flow-2",
+              "text": "A smoother way through your day.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 34,
+            "fontWeight": 500,
+            "italic": false,
+            "color": "#DBF4F4"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "device-pixel-flow-2",
+          "type": "device",
+          "x": 1420,
+          "y": 640,
+          "width": 560,
+          "height": 1182,
+          "rotation": 0,
+          "zIndex": 1,
+          "opacity": 1,
+          "deviceId": "pixel-9-pro",
+          "screenshot": null
+        },
+        {
+          "id": "title-pixel-flow-3",
+          "type": "text",
+          "x": 2400,
+          "y": 110,
+          "width": 920,
+          "height": 190,
+          "rotation": 0,
+          "zIndex": 2,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-title-pixel-flow-3",
+              "text": "Go further\nwith less effort.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 76,
+            "fontWeight": 700,
+            "italic": false,
+            "color": "#FFFFFF"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "subtitle-pixel-flow-3",
+          "type": "text",
+          "x": 2400,
+          "y": 330,
+          "width": 920,
+          "height": 100,
+          "rotation": 0,
+          "zIndex": 3,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-subtitle-pixel-flow-3",
+              "text": "Feel the flow from the first tap.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 34,
+            "fontWeight": 500,
+            "italic": false,
+            "color": "#DBF4F4"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "device-pixel-flow-3",
+          "type": "device",
+          "x": 2580,
+          "y": 640,
+          "width": 560,
+          "height": 1182,
+          "rotation": 0,
+          "zIndex": 1,
+          "opacity": 1,
+          "deviceId": "pixel-9-pro",
+          "screenshot": null
+        }
+      ]
+    }
+  ]
+}

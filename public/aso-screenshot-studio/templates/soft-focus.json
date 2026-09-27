@@ -1,0 +1,323 @@
+{
+  "schemaVersion": 1,
+  "id": "template-soft-focus",
+  "name": "Soft Focus",
+  "createdAt": "2026-09-27T00:00:00.000Z",
+  "groups": [
+    {
+      "id": "group-soft-focus",
+      "name": "iphone-69",
+      "platform": "app-store",
+      "presetId": "iphone-69",
+      "width": 1320,
+      "height": 2868,
+      "locale": "en-US",
+      "prefix": "soft-focus",
+      "variant": "",
+      "gap": 80,
+      "background": {
+        "type": "gradient",
+        "from": "#F7F4FF",
+        "mid": "#D8E5FF",
+        "to": "#C7F1ED",
+        "angle": 45
+      },
+      "backgroundScope": "slide",
+      "slides": [
+        {
+          "id": "slide-soft-focus-1",
+          "background": {
+            "type": "gradient",
+            "from": "#F7F4FF",
+            "mid": "#D8E5FF",
+            "to": "#C7F1ED",
+            "angle": 45
+          },
+          "padding": {
+            "top": 80,
+            "right": 80,
+            "bottom": 80,
+            "left": 80
+          }
+        },
+        {
+          "id": "slide-soft-focus-2",
+          "background": {
+            "type": "gradient",
+            "from": "#FFF2DF",
+            "mid": "#FFD6C8",
+            "to": "#E7C8F4",
+            "angle": 135
+          },
+          "padding": {
+            "top": 80,
+            "right": 80,
+            "bottom": 80,
+            "left": 80
+          }
+        },
+        {
+          "id": "slide-soft-focus-3",
+          "background": {
+            "type": "gradient",
+            "from": "#EAF9FF",
+            "mid": "#C1E5F6",
+            "to": "#C3C9F6",
+            "angle": 45
+          },
+          "padding": {
+            "top": 80,
+            "right": 80,
+            "bottom": 80,
+            "left": 80
+          }
+        }
+      ],
+      "elements": [
+        {
+          "id": "title-soft-focus-1",
+          "type": "text",
+          "x": 80,
+          "y": 205,
+          "width": 1160,
+          "height": 275,
+          "rotation": 0,
+          "zIndex": 2,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-title-soft-focus-1",
+              "text": "A clearer way\nto begin.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 104,
+            "fontWeight": 700,
+            "italic": false,
+            "color": "#253052"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "subtitle-soft-focus-1",
+          "type": "text",
+          "x": 80,
+          "y": 495,
+          "width": 1160,
+          "height": 135,
+          "rotation": 0,
+          "zIndex": 3,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-subtitle-soft-focus-1",
+              "text": "Turn busy days into bright ideas.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 46,
+            "fontWeight": 500,
+            "italic": false,
+            "color": "#485A79"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "device-soft-focus-1",
+          "type": "device",
+          "x": 265,
+          "y": 890,
+          "width": 790,
+          "height": 1580,
+          "rotation": 0,
+          "zIndex": 1,
+          "opacity": 1,
+          "deviceId": "iphone-11-pro",
+          "screenshot": null
+        },
+        {
+          "id": "title-soft-focus-2",
+          "type": "text",
+          "x": 1480,
+          "y": 205,
+          "width": 1160,
+          "height": 275,
+          "rotation": 0,
+          "zIndex": 2,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-title-soft-focus-2",
+              "text": "Find your\neveryday flow.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 104,
+            "fontWeight": 700,
+            "italic": false,
+            "color": "#253052"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "subtitle-soft-focus-2",
+          "type": "text",
+          "x": 1480,
+          "y": 495,
+          "width": 1160,
+          "height": 135,
+          "rotation": 0,
+          "zIndex": 3,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-subtitle-soft-focus-2",
+              "text": "The details you need, beautifully arranged.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 46,
+            "fontWeight": 500,
+            "italic": false,
+            "color": "#485A79"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "device-soft-focus-2",
+          "type": "device",
+          "x": 1665,
+          "y": 890,
+          "width": 790,
+          "height": 1580,
+          "rotation": 0,
+          "zIndex": 1,
+          "opacity": 1,
+          "deviceId": "iphone-11-pro",
+          "screenshot": null
+        },
+        {
+          "id": "title-soft-focus-3",
+          "type": "text",
+          "x": 2880,
+          "y": 205,
+          "width": 1160,
+          "height": 275,
+          "rotation": 0,
+          "zIndex": 2,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-title-soft-focus-3",
+              "text": "Keep the good\nthings close.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 104,
+            "fontWeight": 700,
+            "italic": false,
+            "color": "#253052"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "subtitle-soft-focus-3",
+          "type": "text",
+          "x": 2880,
+          "y": 495,
+          "width": 1160,
+          "height": 135,
+          "rotation": 0,
+          "zIndex": 3,
+          "opacity": 1,
+          "segments": [
+            {
+              "id": "segment-subtitle-soft-focus-3",
+              "text": "A little more clarity, every day.",
+              "style": {}
+            }
+          ],
+          "style": {
+            "fontFamily": "Inter",
+            "fontSize": 46,
+            "fontWeight": 500,
+            "italic": false,
+            "color": "#485A79"
+          },
+          "textAlign": "center",
+          "verticalAlign": "top",
+          "lineHeight": 1.08,
+          "letterSpacing": 0,
+          "padding": 0,
+          "background": null,
+          "widthMode": "fixed",
+          "heightMode": "fixed",
+          "wrap": true
+        },
+        {
+          "id": "device-soft-focus-3",
+          "type": "device",
+          "x": 3065,
+          "y": 890,
+          "width": 790,
+          "height": 1580,
+          "rotation": 0,
+          "zIndex": 1,
+          "opacity": 1,
+          "deviceId": "iphone-11-pro",
+          "screenshot": null
+        }
+      ]
+    }
+  ]
+}

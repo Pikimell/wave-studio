@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
+import styles from './AddGroupDialog.module.css';
 import { createGroup, PRESETS } from '../../domain/presets';
 import type { Group } from '../../domain/schema';
 export function PresetOptions() {
-  return <>{(['app-store', 'google-play'] as const).map(platform => <optgroup key={platform} label={platform === 'app-store' ? 'App Store' : 'Google Play'}>{PRESETS.filter(p => p.platform === platform).map(p => <option key={p.id} value={p.id}>{p.name} · {p.width} × {p.height}</option>)}</optgroup>)}</>;
+  return <>{['iPhone', 'iPad', 'Laptop / Mac', 'Android'].map(category => <optgroup key={category} label={category}>{PRESETS.filter(p => p.category === category).map(p => <option key={p.id} value={p.id}>{p.name} · {p.width} × {p.height}</option>)}</optgroup>)}</>;
 }
 export function AddGroupDialog({ onAdd, onClose }: { onAdd: (group: Group) => void; onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [preset, setPreset] = useState(PRESETS[0].id);
   const [error, setError] = useState('');
   useEffect(() => { dialog.current?.showModal(); }, []);
-  return <dialog className="aso-dialog" ref={dialog} onCancel={onClose} aria-labelledby="aso-group-title">
+  return <dialog className={`${styles.scope} aso-dialog`} ref={dialog} onCancel={onClose} aria-labelledby="aso-group-title">
     <form onSubmit={e => {
       e.preventDefault(); const data = new FormData(e.currentTarget);
       const locale = String(data.get('locale')).trim();

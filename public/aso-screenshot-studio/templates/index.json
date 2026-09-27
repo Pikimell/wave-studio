@@ -1,0 +1,20 @@
+[
+  {
+    "id": "orbit-launch",
+    "name": "Orbit Launch",
+    "description": "Темна космічна палітра, три слайди з iPhone і місцем для скріншотів.",
+    "file": "orbit-launch.json"
+  },
+  {
+    "id": "soft-focus",
+    "name": "Soft Focus",
+    "description": "Світлі пастельні відтінки, три слайди з iPhone та готовими текстами.",
+    "file": "soft-focus.json"
+  },
+  {
+    "id": "pixel-flow",
+    "name": "Pixel Flow",
+    "description": "Морські та фіолетові градієнти, три слайди з Android-пристроєм.",
+    "file": "pixel-flow.json"
+  }
+]

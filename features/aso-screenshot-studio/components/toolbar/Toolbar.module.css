@@ -1,0 +1,15 @@
+.scope:global(.aso-toolbar){display:flex;align-items:center;gap:18px;flex-wrap:wrap;flex-shrink:0;padding:14px 20px;background:var(--aso-panel);border-bottom:1px solid var(--aso-border);}
+.scope :global(.aso-back){display:flex;align-items:center;gap:6px;text-decoration:none;color:#bccbd9;font-size:12px;}
+.scope :global(.aso-brand){font-size:24px;font-weight:800;letter-spacing:-1px;color:#b4ef60;display:flex;flex-direction:column;}
+.scope :global(.aso-brand) span{font-size:10px;letter-spacing:0;color:#c1cfdd;font-weight:400;}
+.scope :global(.aso-project-name){min-width:145px;max-width:210px;}
+.scope :global(.aso-project-name) :global(.aso-field){margin:0;}
+.scope :global(.aso-project-name) :global(.aso-field)>span{display:none;}
+.scope :global(.aso-project-name) input{padding:4px 7px;}
+.scope :global(.aso-project-name) small{font-size:10px;display:block;margin:5px 0 0 7px;}
+.scope :global(.aso-toolbar-actions){margin-left:auto;display:flex;align-items:center;flex-wrap:wrap;gap:7px;}
+.scope :global(.aso-zoom) select{background:#111b27;border:1px solid var(--aso-border);border-radius:7px;padding:8px;color:#eef4fa;}
+@media (max-width:1200px){.scope:global(.aso-toolbar){gap:12px;}}
+@media (max-width:1200px){.scope :global(.aso-toolbar-actions){gap:5px;}}
+@media (max-width:1200px){.scope :global(.aso-toolbar-actions) button{font-size:11px;padding:8px;}}
+@media (max-width:820px){.scope :global(.aso-toolbar-actions){width:100%;margin:0;}}

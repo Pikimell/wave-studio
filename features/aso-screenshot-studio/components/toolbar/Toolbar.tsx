@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import styles from './Toolbar.module.css';
 import { ArrowLeft, FolderOpen, Plus, Redo2, Save, Undo2 } from 'lucide-react';
 import type { Project } from '../../domain/schema';
 import { ZOOM_PRESETS } from '../../hooks/useWorkspaceZoom';
@@ -7,8 +8,8 @@ export function Toolbar({ project, saved, onRename, onNew, onOpen, onSave, onAdd
   project: Project | null; saved: boolean; onRename: (name: string) => void; onNew: () => void; onOpen: () => void; onSave: () => void;
   onAddGroup: () => void; canUndo: boolean; canRedo: boolean; undo: () => void; redo: () => void; zoom: number; setZoom: (zoom: number) => void;
 }) {
-  return <header className="aso-toolbar">
-    <Link href="/" className="aso-back" title="До інструментів"><ArrowLeft size={18} /><span>Studios</span></Link>
+  return <header className={`${styles.scope} aso-toolbar`}>
+    <Link href="/aso-screenshot-studio" className="aso-back" title="До проєктів"><ArrowLeft size={18} /><span>Проєкти</span></Link>
     <div className="aso-brand">ASO<span>Screenshot Studio</span></div>
     {project && <div className="aso-project-name"><TextField label="Проєкт" value={project.name} onChange={onRename} /><small>{saved ? 'Збережено локально' : 'Локальна чернетка'}</small></div>}
     <div className="aso-toolbar-actions">

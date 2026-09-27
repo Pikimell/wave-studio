@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import styles from './LocalizeDialog.module.css';
 import type { Group } from '../../domain/schema';
 import { collectText, translatedGroups } from '../../domain/localization';
 import { requestLocalization } from '../../services/localizationClient';
@@ -11,7 +12,7 @@ export function LocalizeDialog({ group, apiKey, setApiKey, model, setModel, onAd
   const [targets, setTargets] = useState<string[]>([]), [customLocale, setCustomLocale] = useState('');
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
   useEffect(() => { dialog.current?.showModal(); return () => controller.current?.abort(); }, []);
-  return <dialog ref={dialog} className="aso-dialog" aria-labelledby="aso-localize-title" onCancel={onClose}><form onSubmit={async event => {
+  return <dialog ref={dialog} className={`${styles.scope} aso-dialog`} aria-labelledby="aso-localize-title" onCancel={onClose}><form onSubmit={async event => {
     event.preventDefault(); setError(''); setBusy(true);
     const abort = new AbortController(); controller.current = abort;
     try {

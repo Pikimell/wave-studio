@@ -1,28 +1,33 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
-import { Plus, Settings2 } from 'lucide-react';
+import styles from './GroupCanvas.module.css';
+import { ChevronDown, ChevronRight, Plus, Settings2, Trash2 } from 'lucide-react';
 import { elementBounds, groupWidth, hitTest, resizeElement } from '../../domain/geometry';
 import type { ElementGeometry, Group, StudioElement } from '../../domain/schema';
 import { selectedElements, toggleElement, type Selection } from '../../domain/selection';
 import { snapTranslation, type Guide } from '../../domain/snapping';
 import { SnapGuides } from './SnapGuides';
 import { useAssetContext } from '../../hooks/useAssets';
+import { useFontReady } from '../../hooks/useFontReady';
 import { createScene } from '../../render/scene';
 import { SlideViewport } from './SlideViewport';
 import { SelectionOverlay, type GestureMode } from './SelectionOverlay';
 export interface GeometryDraft { groupId: string; resized?: boolean; changes: { elementId: string; geometry: ElementGeometry }[] }
 export interface CanvasPointer { groupId: string; x: number; y: number }
-export function GroupCanvas({ group, selection, select, zoom, onAddSlide, draft, onDraft, onCommit, onPointer, onDuplicate, onExport, exporting, onLocalize }: {
-  group: Group; selection: Selection; select: (selection: Selection) => void; zoom: number;
-  onAddSlide: () => void; onDuplicate: () => void; onExport: () => void; onLocalize: () => void; exporting: boolean; draft: GeometryDraft | null; onDraft: (draft: GeometryDraft | null) => void;
+export function GroupCanvas({ group, selection, select, zoom, collapsed, onToggleCollapsed, onAddSlide, draft, onDraft, onCommit, onPointer, onDuplicate, onDelete, onExport, exporting, onLocalize, onUploadScreenshot }: {
+  group: Group; selection: Selection; select: (selection: Selection) => void; zoom: number; collapsed: boolean; onToggleCollapsed: () => void;
+  onAddSlide: () => void; onDuplicate: () => void; onDelete: () => void; onExport: () => void; onLocalize: () => void; exporting: boolean; draft: GeometryDraft | null; onDraft: (draft: GeometryDraft | null) => void;
   onCommit: (draft: GeometryDraft) => void; onPointer: (pointer: CanvasPointer | null) => void;
+  onUploadScreenshot: (elementId: string, file: File) => Promise<void>;
 }) {
   const { urls } = useAssetContext();
+  const fontVersion = useFontReady(group.elements);
   const namespace = useId().replace(/:/g, '');
   const scroll = useRef<HTMLDivElement>(null), svg = useRef<SVGSVGElement>(null);
+  const screenshotInput = useRef<HTMLInputElement>(null), screenshotTarget = useRef<string | null>(null);
   const previousScale = useRef(zoom / 100);
   const scale = zoom / 100;
   const display = useMemo(() => draft?.groupId === group.id ? { ...group, elements: group.elements.map(e => { const change = draft.changes.find(c => c.elementId === e.id); return change ? { ...e, ...change.geometry } : e; }) } : group, [group, draft]);
-  const scene = useMemo(() => createScene(display, urls), [display, urls]);
+  const scene = useMemo(() => { void fontVersion; return createScene(display, urls); }, [display, urls, fontVersion]);
   const selected = selectedElements({ ...display, elements: scene.elements }, selection);
   const [guides, setGuides] = useState<Guide[]>([]);
   const bounds = createScene(group).elements.map(elementBounds);
@@ -38,7 +43,7 @@ export function GroupCanvas({ group, selection, select, zoom, onAddSlide, draft,
       previousScale.current = scale;
     }
   }, [scale]);
-  function point(event: PointerEvent<SVGElement>) {
+  function point(event: { clientX: number; clientY: number }) {
     const matrix = svg.current?.getScreenCTM();
     if (!matrix) return { x: 0, y: 0 };
     return new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
@@ -47,19 +52,39 @@ export function GroupCanvas({ group, selection, select, zoom, onAddSlide, draft,
     if (event.button !== 0) return;
     event.preventDefault(); event.stopPropagation();
     const p = point(event);
-    if (event.shiftKey) { select(toggleElement(selection, group.id, element.id)); return; }
+    if (event.shiftKey && mode === 'move') { select(toggleElement(selection, group.id, element.id)); return; }
     const moving = mode === 'move' && selected.some(e => e.id === element.id) ? selected : [element];
     if (!selected.some(e => e.id === element.id)) select({ kind: 'element', groupId: group.id, elementIds: [element.id] });
     gesture.current = { element, moving, mode, x: p.x, y: p.y, latest: moving.map(e => ({ elementId: e.id, geometry: e })), pointerId: event.pointerId };
     svg.current?.setPointerCapture(event.pointerId);
   }
-  function finish(cancel: boolean) {
+  function updateGesture(event: PointerEvent<SVGElement>) {
     const current = gesture.current;
-    if (!current) return;
+    if (!current || current.pointerId !== event.pointerId) return;
+    const p = point(event), dx = p.x - current.x, dy = p.y - current.y, element = current.element;
+    let geometry: ElementGeometry;
+    if (current.mode === 'move') {
+      const snapped = event.altKey ? { dx, dy, guides: [] } : snapTranslation(group, current.moving, dx, dy, 6 / scale);
+      setGuides(snapped.guides);
+      current.latest = current.moving.map(e => ({ elementId: e.id, geometry: { ...e, x: e.x + snapped.dx, y: e.y + snapped.dy } }));
+    } else {
+      if (current.mode === 'rotate') {
+        const cx = element.x + element.width / 2, cy = element.y + element.height / 2;
+        const angle = element.rotation + (Math.atan2(p.y - cy, p.x - cx) - Math.atan2(current.y - cy, current.x - cx)) * 180 / Math.PI;
+        geometry = { ...element, rotation: ((angle + 540) % 360) - 180 };
+      } else geometry = resizeElement(element, dx, dy, current.mode, event.shiftKey);
+      current.latest = [{ elementId: element.id, geometry }];
+    }
+    onDraft({ groupId: group.id, changes: current.latest });
+  }
+  function finish(cancel: boolean, event?: PointerEvent<SVGElement>) {
+    const current = gesture.current;
+    if (!current || event && event.pointerId !== current.pointerId) return;
+    if (!cancel && event?.type === 'pointerup') updateGesture(event);
     gesture.current = null;
     if (svg.current?.hasPointerCapture(current.pointerId)) svg.current.releasePointerCapture(current.pointerId);
-    onDraft(null); setGuides([]);
     if (!cancel) onCommit({ groupId: group.id, changes: current.latest, resized: current.mode !== 'move' && current.mode !== 'rotate' });
+    onDraft(null); setGuides([]);
   }
   useEffect(() => {
     const cancel = (event: KeyboardEvent) => { if (event.key === 'Escape') finish(true); };
@@ -76,15 +101,27 @@ export function GroupCanvas({ group, selection, select, zoom, onAddSlide, draft,
     }
     previousOrigin.current = { left, top };
   }, [left, top, scale]);
-  return <section className={`aso-group ${selection?.groupId === group.id ? 'aso-group-active' : ''}`} aria-label={group.name} data-group-id={group.id}>
-    <header className="aso-group-header"><button className="aso-group-name" onClick={() => select({ kind: 'group', groupId: group.id })}><span className="aso-locale">{group.locale}</span><strong>{group.name}</strong><small>{group.width} × {group.height} · {group.slides.length} slides{group.prefix && ` · ${group.prefix}`}{group.variant && ` / ${group.variant}`}</small></button>
-      <div className="aso-row"><button onClick={onLocalize} disabled={!group.elements.some(e => e.type === 'text')}>Localize</button><button onClick={onExport} disabled={exporting || !group.slides.length}>Export ZIP</button><button onClick={onDuplicate}>Duplicate</button><button onClick={onAddSlide}><Plus size={14} />Add Slide</button><button aria-label={`Налаштування ${group.name}`} onClick={() => select({ kind: 'group', groupId: group.id })}><Settings2 size={16} /></button></div>
+  return <section className={`${styles.scope} aso-group ${selection?.groupId === group.id ? 'aso-group-active' : ''} ${collapsed ? 'aso-group-collapsed' : ''}`} aria-label={group.name} data-group-id={group.id}>
+    <input ref={screenshotInput} type="file" accept="image/*" hidden aria-label="Вибрати скріншот пристрою" onChange={event => {
+      const file = event.currentTarget.files?.[0], elementId = screenshotTarget.current;
+      event.currentTarget.value = '';
+      if (file && elementId) void onUploadScreenshot(elementId, file);
+    }} />
+    <header className="aso-group-header"><div className="aso-group-title"><button className="aso-group-toggle" type="button" aria-expanded={!collapsed} aria-label={collapsed ? `Розгорнути групу ${group.name}` : `Згорнути групу ${group.name}`} title={collapsed ? 'Розгорнути групу' : 'Згорнути групу'} onClick={onToggleCollapsed}>{collapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}</button><button className="aso-group-name" onClick={() => select({ kind: 'group', groupId: group.id })}><span className="aso-locale">{group.locale}</span><strong>{group.name}</strong><small>{group.width} × {group.height} · {group.slides.length} slides{group.prefix && ` · ${group.prefix}`}{group.variant && ` / ${group.variant}`}</small></button></div>
+      <div className="aso-row"><button onClick={onLocalize} disabled={!group.elements.some(e => e.type === 'text')}>Localize</button><button onClick={onExport} disabled={exporting || !group.slides.length}>Export ZIP</button><button onClick={onDuplicate}>Duplicate</button><button onClick={onAddSlide}><Plus size={14} />Add Slide</button><button aria-label={`Налаштування ${group.name}`} onClick={() => select({ kind: 'group', groupId: group.id })}><Settings2 size={16} /></button><button aria-label={`Видалити групу ${group.name}`} title="Видалити групу" onClick={onDelete}><Trash2 size={16} /></button></div>
     </header>
-    <div className="aso-group-scroll" ref={scroll}>
+    {!collapsed && <div className="aso-group-scroll" ref={scroll}>
       <div className="aso-slide-labels" style={{ width: (right - left) * scale, paddingLeft: -left * scale, gap: group.gap * scale }}>
         {group.slides.map((slide, index) => <button key={slide.id} style={{ width: group.width * scale }} aria-pressed={selection?.kind === 'slide' && selection.slideId === slide.id} onClick={() => select({ kind: 'slide', groupId: group.id, slideId: slide.id })}><span>{String(index + 1).padStart(2, '0')}</span><span>{group.width} × {group.height}</span></button>)}
       </div>
-      <svg ref={svg} className="aso-canvas" width={(right - left) * scale} height={(bottom - top) * scale} viewBox={`${left} ${top} ${right - left} ${bottom - top}`} role="img" aria-label={`Полотно ${group.name}`} onPointerDown={event => {
+      <svg ref={svg} className="aso-canvas" width={(right - left) * scale} height={(bottom - top) * scale} viewBox={`${left} ${top} ${right - left} ${bottom - top}`} role="img" aria-label={`Полотно ${group.name}`} onDoubleClick={event => {
+        const p = point(event), element = hitTest({ ...display, elements: scene.elements }, p.x, p.y);
+        if (element?.type !== 'device') return;
+        event.preventDefault();
+        screenshotTarget.current = element.id;
+        select({ kind: 'element', groupId: group.id, elementIds: [element.id] });
+        screenshotInput.current?.click();
+      }} onPointerDown={event => {
         const p = point(event), element = hitTest({ ...display, elements: scene.elements }, p.x, p.y);
         if (element) start(event, element, 'move');
         else {
@@ -96,25 +133,8 @@ export function GroupCanvas({ group, selection, select, zoom, onAddSlide, draft,
         const pointer = point(event);
         const index = Math.floor(pointer.x / (group.width + group.gap));
         onPointer(pointer.x >= 0 && pointer.y >= 0 && pointer.y <= group.height && !!group.slides[index] && pointer.x - index * (group.width + group.gap) <= group.width ? { groupId: group.id, x: pointer.x, y: pointer.y } : null);
-        const current = gesture.current;
-        if (!current) return;
-        const p = point(event), dx = p.x - current.x, dy = p.y - current.y, element = current.element;
-        let geometry: ElementGeometry;
-        if (current.mode === 'move') {
-          const snapped = event.altKey ? { dx, dy, guides: [] } : snapTranslation(group, current.moving, dx, dy, 6 / scale);
-          setGuides(snapped.guides);
-          current.latest = current.moving.map(e => ({ elementId: e.id, geometry: { ...e, x: e.x + snapped.dx, y: e.y + snapped.dy } }));
-          onDraft({ groupId: group.id, changes: current.latest });
-          return;
-        }
-        else if (current.mode === 'rotate') {
-          const cx = element.x + element.width / 2, cy = element.y + element.height / 2;
-          const angle = element.rotation + (Math.atan2(p.y - cy, p.x - cx) - Math.atan2(current.y - cy, current.x - cx)) * 180 / Math.PI;
-          geometry = { ...element, rotation: ((angle + 540) % 360) - 180 };
-        } else geometry = resizeElement(element, dx, dy, current.mode);
-        current.latest = [{ elementId: element.id, geometry }];
-        onDraft({ groupId: group.id, changes: current.latest });
-      }} onPointerUp={() => finish(false)} onPointerCancel={() => finish(true)} onLostPointerCapture={() => finish(true)}>
+        updateGesture(event);
+      }} onPointerUp={event => finish(false, event)} onPointerCancel={event => finish(false, event)} onLostPointerCapture={event => finish(false, event)}>
         {scene.slides.map((slide, index) => <SlideViewport key={slide.id} scene={scene} index={index} namespace={namespace} />)}
         {selection?.kind === 'slide' && selection.groupId === group.id && scene.slides.filter(s => s.id === selection.slideId).map(s => <rect key={s.id} {...s.rect} fill="none" stroke="#a3e635" strokeWidth={2 / scale} pointerEvents="none" />)}
         {selection?.groupId === group.id && scene.slides.map(slide => <rect key={`padding-${slide.id}`} x={slide.rect.x + slide.padding.left} y={slide.padding.top} width={Math.max(0, group.width - slide.padding.left - slide.padding.right)} height={Math.max(0, group.height - slide.padding.top - slide.padding.bottom)} fill="none" stroke="#cbd5e1" strokeOpacity={0.25} strokeWidth={1 / scale} strokeDasharray={`${4 / scale} ${4 / scale}`} pointerEvents="none" />)}
@@ -122,6 +142,6 @@ export function GroupCanvas({ group, selection, select, zoom, onAddSlide, draft,
         {selected.map(element => <SelectionOverlay key={element.id} element={element} scale={scale} onStart={(event, mode) => start(event, element, mode)} />)}
       </svg>
       {!group.slides.length && <p className="aso-note">Група порожня. Додайте перший слайд.</p>}
-    </div>
+    </div>}
   </section>;
 }

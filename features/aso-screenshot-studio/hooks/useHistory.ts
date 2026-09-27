@@ -23,8 +23,8 @@ export function useHistory<T>(initial: T) {
     if (transaction.current) transaction.current.changed = true;
   }, [commit]);
   const replace = useCallback((value: T) => { transaction.current = null; commit({ past: [], present: value, future: [] }); }, [commit]);
-  const undo = useCallback(() => { transaction.current = null; commit(undoHistory(current.current)); }, [commit]);
-  const redo = useCallback(() => { transaction.current = null; commit(redoHistory(current.current)); }, [commit]);
+  const undo = useCallback(() => { transaction.current = null; const next = undoHistory(current.current); commit(next); return next.present; }, [commit]);
+  const redo = useCallback(() => { transaction.current = null; const next = redoHistory(current.current); commit(next); return next.present; }, [commit]);
   return { value: history.present, canUndo: !!history.past.length, canRedo: !!history.future.length, update, replace, undo, redo,
     begin: () => { transaction.current = { changed: false }; }, end: () => { transaction.current = null; } };
 }

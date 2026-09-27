@@ -31,10 +31,10 @@ export function useAssets(onError: (message: string) => void) {
     if (!live.current) throw new Error('Редактор закрито.');
     add(asset);
     try { await persistAsset(asset); } catch { errorRef.current('Зображення доступне лише в цій вкладці: локальне збереження не вдалося. Після reload завантажте файл повторно.'); }
-    return asset.id;
+    return asset;
   }, [add]);
   return { assets, upload };
 }
 
-export const AssetContext = createContext<{ assets: AssetMap; urls: Record<string, string>; upload: (file: File) => Promise<string> }>({ assets: {}, urls: {}, upload: async () => { throw new Error('Сховище ще не готове'); } });
+export const AssetContext = createContext<{ assets: AssetMap; urls: Record<string, string>; upload: (file: File) => Promise<StoredAsset> }>({ assets: {}, urls: {}, upload: async () => { throw new Error('Сховище ще не готове'); } });
 export const useAssetContext = () => useContext(AssetContext);

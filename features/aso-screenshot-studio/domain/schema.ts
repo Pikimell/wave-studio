@@ -2,10 +2,10 @@
 export const SCHEMA_VERSION = 1 as const;
 export const LIMITS = { dimension: 12000, coordinate: 10_000_000, gap: 12000 };
 export type Platform = 'app-store' | 'google-play';
-export type AssetReference = { assetId: string };
+export type AssetReference = { assetId: string; fileName?: string };
 export type Background =
   | { type: 'solid'; color: string }
-  | { type: 'gradient'; from: string; to: string; angle: number }
+  | { type: 'gradient'; from: string; mid?: string; to: string; angle: number }
   | { type: 'image'; asset: AssetReference; fit: 'cover' | 'stretch' };
 export interface Padding { top: number; right: number; bottom: number; left: number }
 export interface Slide { id: string; background: Background | null; padding: Padding }
@@ -53,11 +53,11 @@ export function createElement(type: StudioElement['type'], group: Group, x = 100
   };
   switch (type) {
     case 'text': return { ...base, type, segments: [{ id: newId(), text: 'Your next\nbig idea.', style: {} }],
-      style: { fontFamily: 'Arial', fontSize: 88, fontWeight: 700, italic: false, color: '#ffffff' },
+      style: { fontFamily: 'Inter', fontSize: 88, fontWeight: 700, italic: false, color: '#ffffff' },
       textAlign: 'left', verticalAlign: 'top', lineHeight: 1.15, letterSpacing: 0, padding: 0,
       background: null, widthMode: 'fixed', heightMode: 'fixed', wrap: true };
     case 'shape': return { ...base, type, width: 400, height: 400, shape: 'rectangle', fill: '#a3e635', radius: 48 };
-    case 'device': return { ...base, type, width: 620, height: 1280, y: 560, deviceId: 'phone-front', screenshot: null };
+    case 'device': return { ...base, type, width: 620, height: 1280, y: 560, deviceId: 'generic-android-phone', screenshot: null };
     case 'image': return { ...base, type, width: 600, height: 600, asset: null, fit: 'cover' };
     case 'decoration': return { ...base, type, width: 360, height: 360, decorationId: 'sparkle', color: '#c4b5fd' };
   }
@@ -91,12 +91,18 @@ function object(fields: Record<string, Validator>, partial = false): Validator {
 }
 const color: Validator = (v, p) => { if (typeof v !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(v)) fail(p); };
 const dimension = number(1, LIMITS.dimension);
-const asset = object({ assetId: string(128) });
+const asset: Validator = (v, p) => {
+  object({ assetId: string(128), fileName: string(255) }, true)(v, p);
+  if (!v || typeof v !== 'object' || !Object.hasOwn(v, 'assetId')) fail(`${p}.assetId`);
+};
 const styleFields = { fontFamily: string(100), fontSize: number(1, 2000), fontWeight: number(100, 900, true), italic: choices(true, false), color };
 const background: Validator = (v, p) => {
   const type = (v as Background | null)?.type;
   if (type === 'solid') object({ type: choices(type), color })(v, p);
-  else if (type === 'gradient') object({ type: choices(type), from: color, to: color, angle: number(-360, 360) })(v, p);
+  else if (type === 'gradient') {
+    object({ type: choices(type), from: color, mid: color, to: color, angle: number(-360, 360) }, true)(v, p);
+    for (const key of ['type', 'from', 'to', 'angle']) if (!Object.hasOwn(v as object, key)) fail(`${p}.${key}`);
+  }
   else if (type === 'image') object({ type: choices(type), asset, fit: choices('cover', 'stretch') })(v, p);
   else fail(p);
 };

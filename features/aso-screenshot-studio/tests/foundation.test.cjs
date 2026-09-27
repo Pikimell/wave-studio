@@ -13,9 +13,12 @@ const { applyCommand } = require('../domain/commands.ts');
 const { groupWidth, slideRect, intersectionArea, elementBounds, hitTest, resizeElement } = require('../domain/geometry.ts');
 const { createScene } = require('../render/scene.ts');
 const { renderSlideSvg, renderSlideContent } = require('../render/slide.ts');
+const { elementSvg } = require('../render/svg.ts');
 const { serializeProject, parseProjectJson } = require('../services/projectFiles.ts');
 const { pushHistory, undoHistory, redoHistory } = require('../hooks/useHistory.ts');
 const { resolveSelection } = require('../hooks/useSelection.ts');
+const { imageDimensions } = require('../domain/imageDimensions.ts');
+const { resizeWithAspectRatio } = require('../domain/aspectRatio.ts');
 function fixture() {
   const project = createProject('Test');
   const group = createGroup('play-portrait');
@@ -23,14 +26,32 @@ function fixture() {
   project.groups.push(group);
   return { project, group };
 }
+test('uploaded images use source dimensions and inspector ratio lock scales both fields', () => {
+  assert.deepEqual(imageDimensions(1320, 2868), { width: 1320, height: 2868 });
+  assert.deepEqual(imageDimensions(16000, 8000), { width: 12000, height: 6000 });
+  assert.deepEqual(resizeWithAspectRatio(400, 800, 'width', 600), { width: 600, height: 1200 });
+  assert.deepEqual(resizeWithAspectRatio(400, 800, 'height', 400), { width: 200, height: 400 });
+});
+test('decoration choices render distinct shapes', () => {
+  const { group } = fixture();
+  const decoration = createElement('decoration', group);
+  const sparkle = elementSvg(decoration, 'preview');
+  const star = elementSvg({ ...decoration, decorationId: 'star' }, 'preview');
+  const ring = elementSvg({ ...decoration, decorationId: 'ring' }, 'preview');
+  assert.notEqual(sparkle, star);
+  assert.notEqual(star, ring);
+  assert.match(ring, /<circle/);
+});
 test('all element variants and references round-trip without UI state or embedded assets', () => {
   const { project, group } = fixture();
   group.elements = ['text', 'shape', 'image', 'device', 'decoration'].map(type => createElement(type, group));
   group.elements[2].asset = { assetId: 'local-image' };
+  group.elements[2].asset.fileName = 'screen-shot.png';
   group.elements[3].screenshot = { assetId: 'screenshot-1' };
   group.background = { type: 'gradient', from: '#ffffff', to: '#000000', angle: 45 };
   assert.deepEqual(parseProjectJson(serializeProject(project)), project);
   assert.equal(JSON.stringify(project).includes('base64'), false);
+  assert.equal(parseProjectJson(serializeProject(project)).groups[0].elements[2].asset.fileName, 'screen-shot.png');
 });
 test('strict validation rejects malformed dimensions, duplicate nested IDs, unknown fields and versions', () => {
   for (const mutate of [
@@ -115,6 +136,20 @@ test('resizing a rotated element fixes the opposite corner and clamps positive d
   function nw(e) { return { x: e.x + e.width / 2 + e.height / 2, y: e.y + e.height / 2 - e.width / 2 }; }
   assert.deepEqual(nw(resized), nw(element));
   assert.ok(resizeElement(element, 0, -10000, 'se').width >= 1);
+});
+test('side handles resize one axis and keep the opposite edge fixed, including rotation', () => {
+  const element = { x: 100, y: 100, width: 200, height: 100, rotation: 0, zIndex: 0 };
+  assert.deepEqual(resizeElement(element, 40, 25, 'e'), { ...element, width: 240 });
+  assert.deepEqual(resizeElement(element, 40, 25, 'w'), { ...element, x: 140, width: 160 });
+  assert.deepEqual(resizeElement(element, 40, 25, 's'), { ...element, height: 125 });
+  assert.deepEqual(resizeElement(element, 40, 25, 'n'), { ...element, y: 125, height: 75 });
+  assert.deepEqual(resizeElement(element, 40, 0, 'e', true), { ...element, y: 90, width: 240, height: 120 });
+  const rotated = { ...element, rotation: 90 };
+  const result = resizeElement(rotated, 0, 40, 'e');
+  assert.equal(result.width, 240);
+  assert.equal(result.height, 100);
+  const westEdge = e => ({ x: e.x + e.width / 2, y: e.y + e.height / 2 - e.width / 2 });
+  assert.deepEqual(westEdge(result), westEdge(rotated));
 });
 test('stale selection is normalized after deleting selected elements or groups', () => {
   const { project, group } = fixture();
@@ -260,4 +295,168 @@ test('localization sends only text to fixed OpenAI endpoint and never echoes cre
   assert.ok(!request.options.body.includes(apiKey)); assert.ok(!request.options.body.includes('private'));
   assert.equal(JSON.parse(request.options.body).store, false);
   await assert.rejects(localize({ apiKey, model: 'gpt-4.1-mini', payload }, async () => Response.json({ error: { message: apiKey } }, { status: 401 })), error => !error.message.includes(apiKey) && error.message.includes('відхилив'));
+});
+const { copyProject, deleteProject, getProject, listProjects, saveProject } = require('../services/projectStore.ts');
+test('Shift resize preserves aspect ratio and the opposite corner', () => {
+  const element = { x: 10, y: 20, width: 200, height: 100, rotation: 0, zIndex: 0 };
+  const resized = resizeElement(element, 60, 5, 'se', true);
+  assert.equal(resized.width / resized.height, 2);
+  assert.equal(resized.x, element.x);
+  assert.equal(resized.y, element.y);
+  assert.equal(resized.width, 260);
+  assert.equal(resized.height, 130);
+});
+test('project store keeps separate projects, copies IDs, deletes one, and migrates legacy data', () => {
+  const previous = global.localStorage;
+  const data = new Map();
+  global.localStorage = { getItem: key => data.get(key) ?? null, setItem: (key, value) => data.set(key, value), removeItem: key => data.delete(key) };
+  try {
+    const original = fixture().project;
+    data.set('aso-screenshot-studio.project.v1', serializeProject(original));
+    assert.equal(listProjects().length, 1);
+    const copy = copyProject(original, 'Copy');
+    saveProject(copy);
+    assert.equal(listProjects().length, 2);
+    assert.notEqual(copy.id, original.id);
+    assert.notEqual(copy.groups[0].id, original.groups[0].id);
+    deleteProject(original.id);
+    assert.equal(getProject(original.id), null);
+    assert.equal(getProject(copy.id).name, 'Copy');
+  } finally { global.localStorage = previous; }
+});
+test('bundled templates have three composed slides with title, subtitle and centered device', () => {
+  const path = require('node:path');
+  const root = path.join(__dirname, '../../../public/aso-screenshot-studio/templates');
+  const catalog = JSON.parse(fs.readFileSync(path.join(root, 'index.json'), 'utf8'));
+  assert.ok(catalog.length >= 3);
+  for (const entry of catalog) {
+    const template = validateProject(JSON.parse(fs.readFileSync(path.join(root, entry.file), 'utf8')));
+    const group = template.groups[0];
+    assert.equal(group.slides.length, 3, entry.name);
+    for (let index = 0; index < 3; index++) {
+      const elements = group.elements.filter(element => intersectionArea(element, slideRect(group, index)) > 0);
+      assert.equal(elements.filter(element => element.type === 'text').length, 2, `${entry.name} slide ${index + 1}`);
+      const device = elements.find(element => element.type === 'device');
+      assert.ok(device, `${entry.name} slide ${index + 1}`);
+      assert.equal(device.x - index * (group.width + group.gap), (group.width - device.width) / 2);
+    }
+  }
+});
+test('three-color gradient presets validate and render a middle color stop', () => {
+  const { GRADIENT_PRESETS } = require('../domain/gradientPresets.ts');
+  const { backgroundSvg } = require('../render/svg.ts');
+  assert.ok(GRADIENT_PRESETS.length >= 15);
+  for (const preset of GRADIENT_PRESETS) {
+    const { project, group } = fixture();
+    group.background = preset.background;
+    assert.deepEqual(validateProject(project).groups[0].background, preset.background);
+    assert.match(backgroundSvg(preset.background, 100, 200, 'gradient'), /offset="\.5"/);
+  }
+  assert.match(backgroundSvg({ type: 'gradient', from: '#000000', to: '#ffffff', angle: 0 }, 100, 200, 'vertical'), /x1="0\.5" y1="1" x2="0\.5" y2="0"/);
+});
+test('angled device transforms frame and screenshot mask together', async () => {
+  const sharp = require('sharp');
+  const { elementSvg } = require('../render/svg.ts');
+  const { group } = fixture();
+  const red = await sharp({ create: { width: 8, height: 8, channels: 4, background: '#ff0000' } }).png().toBuffer();
+  const device = { ...createElement('device', group), x: 0, y: 0, width: 1000, height: 2060, deviceId: 'phone-angled', screenshot: { assetId: 'red' } };
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="2060">${elementSvg(device, 'test', { red: `data:image/png;base64,${red.toString('base64')}` })}</svg>`;
+  assert.match(svg, /transform="matrix\(0\.74 0\.06 -0\.08 0\.88 220 90\)"/);
+  const image = await sharp(Buffer.from(svg)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const pixel = (x, y) => [...image.data.subarray((y * image.info.width + x) * 4, (y * image.info.width + x) * 4 + 4)];
+  assert.deepEqual(pixel(508, 1026), [255, 0, 0, 255]);
+  assert.equal(pixel(20, 20)[3], 0);
+});
+test('licensed iPad artwork and screenshot render together in SVG export', async () => {
+  const sharp = require('sharp');
+  const { elementSvg } = require('../render/svg.ts');
+  const { group } = fixture();
+  const artwork = fs.readFileSync(require('node:path').join(__dirname, '../../../public/aso-screenshot-studio/devices/ipad-pro-12-9-space-gray.svg'));
+  const red = await sharp({ create: { width: 8, height: 8, channels: 4, background: '#ff0000' } }).png().toBuffer();
+  const device = { ...createElement('device', group), x: 0, y: 0, width: 224, height: 292.4, deviceId: 'ipad-pro-12-9', screenshot: { assetId: 'red' } };
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="224" height="293">${elementSvg(device, 'test', { red: `data:image/png;base64,${red.toString('base64')}`, 'device-artwork:ipad-pro-12-9': `data:image/svg+xml;base64,${artwork.toString('base64')}` })}</svg>`;
+  const image = await sharp(Buffer.from(svg)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const pixel = (x, y) => [...image.data.subarray((y * image.info.width + x) * 4, (y * image.info.width + x) * 4 + 4)];
+  assert.deepEqual(pixel(112, 146), [255, 0, 0, 255]);
+  assert.equal(pixel(0, 0)[3], 0);
+});
+test('Pixel artwork overlays screenshot through its transparent screen', async () => {
+  const sharp = require('sharp');
+  const { elementSvg } = require('../render/svg.ts');
+  const { group } = fixture();
+  const artwork = fs.readFileSync(require('node:path').join(__dirname, '../../../public/aso-screenshot-studio/devices/pixel-9-pro.svg'));
+  const red = await sharp({ create: { width: 8, height: 8, channels: 4, background: '#ff0000' } }).png().toBuffer();
+  const device = { ...createElement('device', group), x: 0, y: 0, width: 353, height: 745, deviceId: 'pixel-9-pro', screenshot: { assetId: 'red' } };
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="353" height="745">${elementSvg(device, 'test', { red: `data:image/png;base64,${red.toString('base64')}`, 'device-artwork:pixel-9-pro': `data:image/svg+xml;base64,${artwork.toString('base64')}` })}</svg>`;
+  const image = await sharp(Buffer.from(svg)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const pixel = (x, y) => [...image.data.subarray((y * image.info.width + x) * 4, (y * image.info.width + x) * 4 + 4)];
+  assert.deepEqual(pixel(175, 380), [255, 0, 0, 255]);
+  assert.equal(pixel(0, 0)[3], 0);
+});
+test('device frames leave screenshot status bars unobscured and show an upload hint when empty', async () => {
+  const sharp = require('sharp');
+  const path = require('node:path');
+  const { group } = fixture();
+  const red = await sharp({ create: { width: 8, height: 8, channels: 4, background: '#ff0000' } }).png().toBuffer();
+  for (const [deviceId, width, height, statusPoints] of [
+    ['iphone-16-max', 415, 843, [[78, 40], [345, 40]]],
+    ['pixel-9-pro', 353, 745, [[50, 42], [305, 42]]],
+  ]) {
+    const artwork = fs.readFileSync(path.join(__dirname, '../../../public/aso-screenshot-studio/devices', `${deviceId}.svg`), 'utf8')
+      .replace('</svg>', `<rect x="30" y="30" width="90" height="22" fill="black"/><rect x="275" y="30" width="80" height="22" fill="black"/></svg>`);
+    const device = { ...createElement('device', group), x: 0, y: 0, width, height, deviceId, screenshot: { assetId: 'red' } };
+    const assets = { red: `data:image/png;base64,${red.toString('base64')}`, [`device-artwork:${deviceId}`]: `data:image/svg+xml;base64,${Buffer.from(artwork).toString('base64')}` };
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">${elementSvg(device, 'status', assets)}</svg>`;
+    const image = await sharp(Buffer.from(svg)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    for (const [x, y] of statusPoints) {
+      const offset = (y * image.info.width + x) * 4;
+      assert.deepEqual([...image.data.subarray(offset, offset + 4)], [255, 0, 0, 255], `${deviceId} status area at ${x},${y}`);
+    }
+    const empty = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">${elementSvg({ ...device, screenshot: null }, 'empty', assets)}</svg>`;
+    assert.match(empty, /Двічі клацніть/);
+    const emptyImage = await sharp(Buffer.from(empty)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    for (const [x, y] of statusPoints) {
+      const offset = (y * emptyImage.info.width + x) * 4;
+      assert.deepEqual([...emptyImage.data.subarray(offset, offset + 4)], [51, 65, 85, 255], `${deviceId} empty status area at ${x},${y}`);
+    }
+  }
+});
+test('bundled font is available for export and SVG accepts embedded face', async () => {
+  const sharp = require('sharp');
+  const font = fs.readFileSync(require('node:path').join(__dirname, '../../../public/aso-screenshot-studio/fonts/inter-latin.woff2'));
+  const { group } = fixture();
+  const text = createElement('text', group); text.style.fontFamily = 'Inter'; text.segments[0].text = 'Inter';
+  group.elements = [text];
+  assert.ok(!inspectGroup(group, new Set()).some(issue => issue.message.includes('Шрифт')));
+  const scene = createScene(group);
+  scene.fontCss = `@font-face{font-family:'Inter';src:url('data:font/woff2;base64,${font.toString('base64')}') format('woff2')}`;
+  const svg = renderSlideSvg(scene, 0);
+  assert.match(svg, /@font-face/);
+  const image = await sharp(Buffer.from(svg)).png().toBuffer();
+  assert.ok(image.length > 0);
+});
+test('expanded font catalog has licensed files and recognizes requested Latin-only families', async () => {
+  const path = require('node:path');
+  const { BUNDLED_FONTS, fontFiles, FONT_FAMILIES } = require('../domain/fontLibrary.ts');
+  const { prepareFont } = require('../services/fontStore.ts');
+  const root = path.join(__dirname, '../../../public/aso-screenshot-studio/fonts');
+  assert.equal(BUNDLED_FONTS.length, 30);
+  for (const font of BUNDLED_FONTS) {
+    assert.ok(fs.existsSync(path.join(root, `${font.slug}-OFL.txt`)) || fs.existsSync(path.join(root, `${font.slug}-LICENSE.txt`)), font.name);
+    for (const file of fontFiles(font)) assert.ok(fs.existsSync(path.join(__dirname, '../../../public', file.url)), file.url);
+  }
+  assert.ok(FONT_FAMILIES.includes('Kalam'));
+  assert.ok(FONT_FAMILIES.includes('Fredoka One'));
+  const bytes = fs.readFileSync(path.join(root, 'inter-latin.woff2'));
+  const upload = Object.assign(new Blob([bytes]), { name: 'My Font.woff2' });
+  const custom = await prepareFont(upload);
+  assert.equal(custom.name, 'My Font');
+  assert.match(custom.family, /^custom-font-/);
+  const { group } = fixture();
+  const text = createElement('text', group); text.style.fontFamily = custom.family; group.elements = [text];
+  assert.ok(inspectGroup(group, new Set()).some(issue => issue.severity === 'error' && issue.message.includes('Власний шрифт')));
+  assert.ok(!inspectGroup(group, new Set(), new Set([custom.family])).some(issue => issue.message.includes('Власний шрифт')));
+  text.style.fontFamily = 'Kalam';
+  text.segments[0].text = 'Привіт';
+  assert.ok(inspectGroup(group, new Set()).some(issue => issue.severity === 'warning' && issue.message.includes('кирилиці')));
 });

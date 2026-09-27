@@ -1,0 +1,8 @@
+.scope :global(.aso-note){font-size:11px;line-height:1.6;color:#92a6bb;}
+.scope button:global(.aso-danger){color:#ffb5b5;background:#382831;border-color:#6b3d4b;margin-top:20px;width:100%;}
+.scope :global(.aso-section-title){margin-top:24px!important;padding-top:18px;border-top:1px solid var(--aso-border);}
+.scope :global(.aso-check){display:flex;align-items:center;gap:8px;margin:0 0 15px;font-size:11px;color:#c0cede;}
+.scope :global(.aso-check) input{accent-color:#b4ef60;}
+.scope :global(.aso-warning){padding:10px;border:1px solid #7e6334;border-radius:6px;background:#3c3121;color:#fde3ac!important;font-size:11px;}
+.scope:global(.aso-asset-picker){margin-bottom:18px;}
+.scope:global(.aso-asset-picker)>button{width:100%;margin-bottom:12px;}
