@@ -16,6 +16,7 @@ export type Command =
   | { type: 'project.update'; patch: ProjectPatch }
   | { type: 'group.add'; group: Group }
   | { type: 'group.update'; groupId: string; patch: GroupPatch }
+  | { type: 'group.replace'; groupId: string; group: Group }
   | { type: 'group.delete'; groupId: string }
   | { type: 'slide.add'; groupId: string; slide: Slide }
   | { type: 'slide.update'; groupId: string; slideId: string; patch: Partial<Omit<Slide, 'id'>> }
@@ -39,6 +40,7 @@ function applyUnchecked(project: Project, command: Command): Project {
         case 'slide.reorder': return reorderSlide(group, command.slideId, command.to);
         case 'elements.order': return { ...group, elements: orderElements(group.elements, command.elementIds, command.direction) };
         case 'group.update': return { ...group, ...command.patch };
+        case 'group.replace': return { ...command.group, id: group.id };
         case 'slide.add': return { ...group, slides: [...group.slides, command.slide] };
         case 'slide.update': {
           if (!group.slides.some(s => s.id === command.slideId)) throw new Error('Слайд не знайдено');

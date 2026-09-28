@@ -42,6 +42,17 @@ export function elementSvg(element: StudioElement, namespace: string, assets: Re
       break;
     }
     case 'image': content = element.asset && assets[element.asset.assetId] ? `<svg width="${element.width}" height="${element.height}" overflow="hidden"><image width="${element.width}" height="${element.height}" href="${escapeXml(assets[element.asset.assetId])}" preserveAspectRatio="${element.fit === 'stretch' ? 'none' : element.fit === 'contain' ? 'xMidYMid meet' : 'xMidYMid slice'}"/></svg>` : placeholder(element.width, element.height, 'Image missing'); break;
+    case 'svg': {
+      const url = element.asset && assets[element.asset.assetId];
+      if (!url) { content = placeholder(element.width, element.height, 'SVG missing'); break; }
+      const preserveAspectRatio = element.fit === 'stretch' ? 'none' : 'xMidYMid meet';
+      const image = `<image width="${element.width}" height="${element.height}" href="${escapeXml(url)}" preserveAspectRatio="${preserveAspectRatio}"/>`;
+      if (element.colorMode === 'tint') {
+        const maskId = `${namespace}-svg-mask-${element.id}`;
+        content = `<svg width="${element.width}" height="${element.height}" overflow="hidden"><defs><mask id="${maskId}" maskUnits="userSpaceOnUse">${image}</mask></defs><rect width="${element.width}" height="${element.height}" fill="${element.tint}" mask="url(#${maskId})"/></svg>`;
+      } else content = `<svg width="${element.width}" height="${element.height}" overflow="hidden">${image}</svg>`;
+      break;
+    }
     case 'device': {
       const device = DEVICES.find(d => d.id === element.deviceId);
       if (!device) { content = placeholder(element.width, element.height, 'Device missing', true); break; }

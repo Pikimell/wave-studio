@@ -1,4 +1,4 @@
-import type { Group } from '../domain/schema';
+import { SCHEMA_VERSION, type Group } from '../domain/schema';
 import type { StoredAsset } from './assetStore';
 import type { StoredFont } from './fontStore';
 import { filePart, pngFilename, prepareExport, renderPng } from './exportPng';
@@ -37,8 +37,13 @@ export async function createZip(files: { name: string; blob: Blob }[]): Promise<
 export function zipFilename(projectName: string, group: Group) {
   return [projectName, group.prefix, group.variant, group.presetId, group.locale].map(filePart).filter(Boolean).join('_') + '.zip';
 }
+export function groupJsonFilename(group: Group) {
+  return [...[group.prefix, group.variant, group.locale].map(filePart).filter(Boolean), 'group'].join('_') + '.json';
+}
 export async function exportGroupZip(group: Group, assets: Record<string, StoredAsset>, onProgress: (done: number, total: number) => void, fonts: Record<string, StoredFont> = {}): Promise<Blob> {
-  const scene = await prepareExport(group, assets, fonts), files: { name: string; blob: Blob }[] = [];
+  const scene = await prepareExport(group, assets, fonts), files: { name: string; blob: Blob }[] = [
+    { name: groupJsonFilename(group), blob: new Blob([JSON.stringify({ schemaVersion: SCHEMA_VERSION, group }, null, 2)], { type: 'application/json;charset=utf-8' }) }
+  ];
   let bytes = 0;
   for (let index = 0; index < group.slides.length; index++) {
     const blob = await renderPng(scene, index); bytes += blob.size;

@@ -31,7 +31,7 @@ export async function prepareExport(group: Group, assets: Record<string, StoredA
   const needed = new Set<string>();
   const background = (bg: Group['background']) => { if (bg.type === 'image') needed.add(bg.asset.assetId); };
   group.slides.forEach(s => background(s.background ?? group.background));
-  group.elements.forEach(e => { if (e.type === 'image' && e.asset) needed.add(e.asset.assetId); if (e.type === 'device' && e.screenshot) needed.add(e.screenshot.assetId); });
+  group.elements.forEach(e => { if ((e.type === 'image' || e.type === 'svg') && e.asset) needed.add(e.asset.assetId); if (e.type === 'device' && e.screenshot) needed.add(e.screenshot.assetId); });
   const entries = await Promise.all([...needed].map(async id => [id, await dataUrl(assets[id].blob)]));
   const deviceArtwork = await Promise.all([...new Set(group.elements.filter(element => element.type === 'device').map(element => element.deviceId))].map(async id => {
     const device = DEVICES.find(item => item.id === id);

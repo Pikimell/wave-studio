@@ -35,8 +35,11 @@
 .sidebar .upload:hover:not(:disabled){background:#3b5940;}
 .uploadList{display:grid;gap:5px;margin-top:10px;}
 .uploadItem{display:grid;grid-template-columns:minmax(0,1fr) 34px;gap:4px;}
+.uploadItemUsed{border-radius:var(--radius-md);background:#25384b;box-shadow:inset 0 0 0 1px #4f789d;}
 .sidebar .uploadItem .uploadAsset{display:flex;width:100%;min-width:0;justify-content:flex-start;white-space:normal;text-align:left;padding:6px;font-size:10px;}
-.uploadAsset span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.uploadAsset>span:last-child{display:flex;min-width:0;flex-direction:column;gap:2px;}
+.uploadAsset>span:last-child>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.uploadAsset small{color:#98d8ff;font-size:9px;font-weight:700;line-height:1;text-transform:uppercase;}
 .sidebar .deleteUpload{display:flex;align-items:center;justify-content:center;padding:6px;color:#f5a6a6;border-color:#714747;background:#3d2e32;}
 .sidebar .deleteUpload:hover{background:#56363b;border-color:#a85f65;}
 .uploadThumb{display:block;width:28px;height:28px;flex:none;border-radius: var(--radius-xs);background-color:#354050;background-size:cover;background-position:center;}

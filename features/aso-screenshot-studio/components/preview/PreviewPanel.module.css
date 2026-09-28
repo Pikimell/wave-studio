@@ -1,8 +1,9 @@
-.scope:global(.aso-preview){flex-shrink:0;background:var(--aso-panel);border-top:1px solid var(--aso-border);}
-.scope :global(.aso-preview-toggle){background:transparent;border:0;border-radius:0;justify-content:flex-start;width:100%;padding:10px 20px;font-size:11px;}
-.scope :global(.aso-preview-toggle) small{margin-left:12px;}
-.scope :global(.aso-thumbnails){display:flex;align-items:center;gap:12px;height:134px;padding:6px 20px 14px;overflow:auto;}
-.scope :global(.aso-thumbnails) button{display:flex;flex-direction:column;gap:5px;padding:0;border:0;background:transparent;font-size:9px;}
-.scope :global(.aso-thumbnails) svg{flex-shrink:0;border-radius:3px;}
-.scope :global(.aso-thumbnails) p{font-size:11px;margin:auto;}
-@media (max-width:820px){.scope :global(.aso-preview-toggle) small{max-width:65%;overflow:hidden;text-overflow:ellipsis;}}
+.scope:global(.aso-preview){flex-shrink:0;background:var(--aso-panel);border-top:1px solid var(--aso-border);min-height:72px;max-height:360px;overflow:hidden;}
+.scope :global(.aso-preview-resize){height:10px;cursor:ns-resize;touch-action:none;position:relative;}
+.scope :global(.aso-preview-resize)::before{content:"";position:absolute;left:50%;top:4px;width:76px;height:2px;border-radius:999px;background:#526477;transform:translateX(-50%);}
+.scope :global(.aso-preview-resize):hover::before,.scope :global(.aso-preview-resize):focus-visible::before{background:#87a2bd;}
+.scope :global(.aso-preview-resize):focus-visible{outline:2px solid var(--aso-focus);outline-offset:-2px;}
+.scope :global(.aso-thumbnails){display:flex;align-items:center;height:calc(100% - 10px);padding:8px 20px 12px;overflow:auto;}
+.scope:global(.aso-preview) :global(.aso-thumbnails) > button{display:flex;align-items:center;justify-content:center;height:100%;min-width:0;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:inherit;appearance:none;}
+.scope:global(.aso-preview) :global(.aso-thumbnails) > button:hover:not(:disabled),.scope:global(.aso-preview) :global(.aso-thumbnails) > button:focus-visible{background:transparent!important;border-color:transparent!important;box-shadow:none!important;}
+.scope :global(.aso-thumbnails) svg{display:block;flex-shrink:0;border-radius:0;box-shadow:none;}

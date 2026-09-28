@@ -1,6 +1,8 @@
 /** Serializable document only. Selection, zoom, history and secrets belong to UI state. */
 export const SCHEMA_VERSION = 1 as const;
 export const LIMITS = { dimension: 12000, coordinate: 10_000_000, gap: 12000 };
+export const DEFAULT_IMAGE_SIZE = { width: 600, height: 600 } as const;
+export const DEFAULT_SVG_SIZE = { width: 420, height: 420 } as const;
 export type Platform = 'app-store' | 'google-play';
 export type AssetReference = { assetId: string; fileName?: string };
 export type Background =
@@ -27,9 +29,10 @@ export interface ShapeElement extends ElementBase {
   type: 'shape'; shape: 'rectangle' | 'ellipse'; fill: string; radius: number;
 }
 export interface ImageElement extends ElementBase { type: 'image'; asset: AssetReference | null; fit: 'cover' | 'contain' | 'stretch' }
+export interface SvgElement extends ElementBase { type: 'svg'; asset: AssetReference | null; fit: 'contain' | 'stretch'; colorMode: 'original' | 'tint'; tint: string }
 export interface DeviceElement extends ElementBase { type: 'device'; deviceId: string; screenshot: AssetReference | null }
 export interface DecorationElement extends ElementBase { type: 'decoration'; decorationId: string; color: string }
-export type StudioElement = TextElement | ShapeElement | ImageElement | DeviceElement | DecorationElement;
+export type StudioElement = TextElement | ShapeElement | ImageElement | SvgElement | DeviceElement | DecorationElement;
 export interface Group {
   id: string; name: string; platform: Platform; presetId: string;
   width: number; height: number; locale: string; prefix: string; variant: string; gap: number;
@@ -60,7 +63,8 @@ export function createElement(type: StudioElement['type'], group: Group, x = 100
       background: null, widthMode: 'fixed', heightMode: 'fixed', wrap: true };
     case 'shape': return { ...base, type, width: 400, height: 400, shape: 'rectangle', fill: '#a3e635', radius: 48 };
     case 'device': return { ...base, type, width: 620, height: 1280, y: 560, deviceId: 'generic-android-phone', screenshot: null };
-    case 'image': return { ...base, type, width: 600, height: 600, asset: null, fit: 'cover' };
+    case 'image': return { ...base, type, ...DEFAULT_IMAGE_SIZE, asset: null, fit: 'cover' };
+    case 'svg': return { ...base, type, ...DEFAULT_SVG_SIZE, asset: null, fit: 'contain', colorMode: 'original', tint: '#ffffff' };
     case 'decoration': return { ...base, type, width: 360, height: 360, decorationId: 'sparkle', color: '#c4b5fd' };
   }
 }
@@ -133,6 +137,7 @@ export function validateProject(value: unknown): Project {
         widthMode: choices('fixed', 'auto'), heightMode: choices('fixed', 'auto'), wrap: choices(true, false) })(v, p);
       case 'shape': return object({ ...common, shape: choices('rectangle', 'ellipse'), fill: color, radius: number(0, 6000) })(v, p);
       case 'image': return object({ ...common, asset: nullable(asset), fit: choices('cover', 'contain', 'stretch') })(v, p);
+      case 'svg': return object({ ...common, asset: nullable(asset), fit: choices('contain', 'stretch'), colorMode: choices('original', 'tint'), tint: color })(v, p);
       case 'device': return object({ ...common, deviceId: string(128), screenshot: nullable(asset) })(v, p);
       case 'decoration': return object({ ...common, decorationId: string(128), color })(v, p);
       default: return fail(p);

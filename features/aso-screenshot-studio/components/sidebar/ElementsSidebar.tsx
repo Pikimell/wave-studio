@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import {
   ChevronDown,
   Circle,
+  FileCode2,
   FileImage,
   Image as ImageIcon,
   Laptop,
@@ -18,7 +19,7 @@ import {
   Watch,
 } from "lucide-react";
 import styles from "./ElementsSidebar.module.css";
-import type { Group, StudioElement } from "../../domain/schema";
+import type { Background, Group, StudioElement } from "../../domain/schema";
 import { DEVICE_GROUPS, DEVICES, type DeviceSpec } from "../../domain/devices";
 import { DECORATIONS } from "../../domain/decorations";
 import { useAssetContext } from "../../hooks/useAssets";
@@ -32,13 +33,33 @@ function DeviceIcon({ device }: { device: DeviceSpec }) {
   return <Smartphone size={15} />;
 }
 
+function collectBackgroundAssetId(background: Background | null, target: Set<string>) {
+  if (background?.type === "image") target.add(background.asset.assetId);
+}
+
+function usedAssetIds(groups: Group[]) {
+  const ids = new Set<string>();
+  groups.forEach((group) => {
+    collectBackgroundAssetId(group.background, ids);
+    group.slides.forEach((slide) => collectBackgroundAssetId(slide.background, ids));
+    group.elements.forEach((element) => {
+      if (element.type === "image" && element.asset) ids.add(element.asset.assetId);
+      if (element.type === "svg" && element.asset) ids.add(element.asset.assetId);
+      if (element.type === "device" && element.screenshot) ids.add(element.screenshot.assetId);
+    });
+  });
+  return ids;
+}
+
 export function ElementsSidebar({
   group,
+  groups = group ? [group] : [],
   onAdd,
   onAddAsset,
   onSelect,
 }: {
   group?: Group;
+  groups?: Group[];
   onAdd: (type: StudioElement["type"], variant?: string) => void;
   onAddAsset: (asset: StoredAsset) => void;
   onSelect: (id: string, additive: boolean) => void;
@@ -50,6 +71,7 @@ export function ElementsSidebar({
   const uploads = Object.values(assets).filter(
     (asset) => !asset.id.startsWith("builtin-"),
   );
+  const usedUploads = usedAssetIds(groups);
   return (
     <aside
       className={`${styles.sidebar} aso-sidebar`}
@@ -87,6 +109,17 @@ export function ElementsSidebar({
             <span>
               <strong>Зображення</strong>
               <small>Додати блок для файлу</small>
+            </span>
+          </button>
+          <button
+            className={styles.menuItem}
+            disabled={!group}
+            onClick={() => onAdd("svg")}
+          >
+            <FileCode2 size={19} />
+            <span>
+              <strong>SVG</strong>
+              <small>Векторний файл із tint mode</small>
             </span>
           </button>
           <details className={styles.category}>
@@ -180,7 +213,7 @@ export function ElementsSidebar({
         </summary>
         <p>
           Завантажте файл і одразу додайте його на слайд. Щоб замінити
-          зображення в наявному елементі, скористайтеся Inspector.
+          зображення або SVG в наявному елементі, скористайтеся Inspector.
         </p>
         <button
           className={styles.upload}
@@ -193,7 +226,7 @@ export function ElementsSidebar({
         <input
           ref={input}
           type="file"
-          accept="image/png,image/jpeg,image/webp"
+          accept="image/png,image/jpeg,image/webp,image/svg+xml,.svg"
           hidden
           onChange={async (event) => {
             const file = event.target.files?.[0];
@@ -221,38 +254,40 @@ export function ElementsSidebar({
         )}
         {uploads.length > 0 && (
           <div className={styles.uploadList}>
-            {uploads.map((asset) => (
-              <div className={styles.uploadItem} key={asset.id}>
-                <button
-                  className={styles.uploadAsset}
-                  disabled={!group}
-                  title={`Додати ${asset.name}`}
-                  onClick={() => onAddAsset(asset)}
+            {uploads.map((asset) => {
+              const used = usedUploads.has(asset.id);
+              return (
+                <div
+                  className={`${styles.uploadItem} ${used ? styles.uploadItemUsed : ""}`}
+                  key={asset.id}
                 >
-                  <span
-                    className={styles.uploadThumb}
-                    style={{ backgroundImage: `url(${asset.url})` }}
-                  />
-                  <span>{asset.name}</span>
-                </button>
-                <button
-                  className={styles.deleteUpload}
-                  type="button"
-                  aria-label={`Видалити ${asset.name}`}
-                  title={`Видалити ${asset.name}`}
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        `Видалити файл «${asset.name}»? Він зникне з бібліотеки, а елементи, які його використовують, втратять зображення.`,
-                      )
-                    )
-                      void remove(asset.id);
-                  }}
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            ))}
+                  <button
+                    className={styles.uploadAsset}
+                    disabled={!group}
+                    title={used ? `${asset.name} використовується на слайдах` : `Додати ${asset.name}`}
+                    onClick={() => onAddAsset(asset)}
+                  >
+                    <span
+                      className={styles.uploadThumb}
+                      style={{ backgroundImage: `url(${asset.url})` }}
+                    />
+                    <span>
+                      <span>{asset.name}</span>
+                      {used && <small>На слайдах</small>}
+                    </span>
+                  </button>
+                  <button
+                    className={styles.deleteUpload}
+                    type="button"
+                    aria-label={`Видалити ${asset.name}`}
+                    title={`Видалити ${asset.name}`}
+                    onClick={() => void remove(asset.id)}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </details>
@@ -277,6 +312,7 @@ export function ElementsSidebar({
                       text: "Текст",
                       device: "Пристрій",
                       image: "Зображення",
+                      svg: "SVG",
                       shape: "Фігура",
                       decoration: "Декор",
                     } as const

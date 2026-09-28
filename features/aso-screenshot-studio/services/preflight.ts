@@ -12,8 +12,8 @@ export function inspectGroup(group: Group, assetIds: Set<string>, customFonts: S
   if (group.slides.some(s => s.background === null)) background(group.background);
   group.slides.forEach(s => { if (s.background) background(s.background, s.id); });
   for (const element of group.elements) {
-    const reference = element.type === 'device' ? element.screenshot : element.type === 'image' ? element.asset : undefined;
-    if ((element.type === 'device' || element.type === 'image') && (!reference || !assetIds.has(reference.assetId))) issues.push({ severity: 'error', message: element.type === 'device' ? 'Screenshot пристрою відсутній.' : reference?.fileName ? `Зображення «${reference.fileName}» відсутнє. Завантажте файл повторно.` : 'Зображення відсутнє.', elementId: element.id });
+    const reference = element.type === 'device' ? element.screenshot : element.type === 'image' || element.type === 'svg' ? element.asset : undefined;
+    if ((element.type === 'device' || element.type === 'image' || element.type === 'svg') && (!reference || !assetIds.has(reference.assetId))) issues.push({ severity: 'error', message: element.type === 'device' ? 'Screenshot пристрою відсутній.' : element.type === 'svg' ? reference?.fileName ? `SVG «${reference.fileName}» відсутній. Завантажте файл повторно.` : 'SVG відсутній.' : reference?.fileName ? `Зображення «${reference.fileName}» відсутнє. Завантажте файл повторно.` : 'Зображення відсутнє.', elementId: element.id });
     if (element.type === 'device' && !DEVICES.some(d => d.id === element.deviceId)) issues.push({ severity: 'error', message: 'Модель пристрою недоступна.', elementId: element.id });
     if (element.type === 'text') {
       if (layoutText(element).overflow) issues.push({ severity: 'warning', message: 'Текст виходить за межі блока й буде обрізаний.', elementId: element.id });

@@ -125,7 +125,7 @@ export function AsoScreenshotStudio({ projectId }: { projectId: string }) {
     if (!activeGroup) return;
     const index = selection?.kind === 'slide' ? Math.max(0, activeGroup.slides.findIndex(s => s.id === selection.slideId)) : 0;
     const initial = createElement(type, activeGroup, index * (activeGroup.width + activeGroup.gap) + 100);
-    let element: StudioElement = initial.type === 'image' && asset ? { ...initial, asset: { assetId: asset.id, fileName: asset.name.slice(0, 255) }, ...imageDimensions(asset.width, asset.height) } : initial;
+    let element: StudioElement = (initial.type === 'image' || initial.type === 'svg') && asset ? { ...initial, asset: { assetId: asset.id, fileName: asset.name.slice(0, 255) }, ...imageDimensions(asset.width, asset.height) } : initial;
     if (element.type === 'device' && variant) {
       const device = DEVICES.find(item => item.id === variant);
       if (device) element = { ...element, deviceId: device.id, height: Math.round(element.width * device.height / device.width) };
@@ -206,7 +206,7 @@ export function AsoScreenshotStudio({ projectId }: { projectId: string }) {
       </button>
     </div>
     <div className="aso-body" data-left={showSidebar} data-right={showInspector}>
-      {showSidebar && <ElementsSidebar group={activeGroup} onAdd={(type, variant) => addElement(type, undefined, variant)} onAddAsset={asset => addElement('image', asset)} onSelect={(elementId, additive) => activeGroup && select(additive ? toggleElement(selection, activeGroup.id, elementId) : { kind: 'element', groupId: activeGroup.id, elementIds: [elementId] })} />}
+      {showSidebar && <ElementsSidebar group={activeGroup} groups={project?.groups ?? []} onAdd={(type, variant) => addElement(type, undefined, variant)} onAddAsset={asset => addElement(asset.mimeType === 'image/svg+xml' ? 'svg' : 'image', asset)} onSelect={(elementId, additive) => activeGroup && select(additive ? toggleElement(selection, activeGroup.id, elementId) : { kind: 'element', groupId: activeGroup.id, elementIds: [elementId] })} />}
       <main className="aso-workspace" ref={workspace} aria-label="Робоча область" onClick={e => { if (e.target === e.currentTarget) select(null); }}>
         {!project || !project.groups.length ? <div className="aso-empty"><div className="aso-empty-icon"><Layers3 size={32} /></div><span className="aso-eyebrow">FROM APP TO APP STORE</span><h1>Ваша історія.<br /><em>У кожному слайді.</em></h1><p>Збирайте скріншоти у спільну композицію.<br />Почніть із проєкту, а розміри оберіть у групі.</p><button className="aso-primary" onClick={project ? () => setAddingGroup(true) : newProject}><Plus size={18} />{project ? 'Додати першу групу' : 'Create Project'}</button><small>App Store & Google Play · Локальна чернетка</small></div> : project.groups.map(group => <GroupCanvas key={group.id} group={group} selection={selection} select={select} zoom={zoom} collapsed={collapsedGroupIds.has(group.id)} onToggleCollapsed={() => toggleGroupCollapsed(group.id)} exporting={exporting} onLocalize={() => setLocalizing(group)} onExport={() => void exportImages(group.id)} onDelete={() => { dispatch({ type: 'group.delete', groupId: group.id }); select(null); }} onDuplicate={() => duplicateCurrentGroup(group)} onAddSlide={() => {
           const slide = createSlide(); dispatch({ type: 'slide.add', groupId: group.id, slide }); select({ kind: 'slide', groupId: group.id, slideId: slide.id });

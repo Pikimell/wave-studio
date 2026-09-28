@@ -128,3 +128,20 @@
   width: 100%;
   white-space: normal;
 }
+.scope :global(.aso-json-editor textarea) {
+  min-height: 360px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 11px;
+  line-height: 1.55;
+  white-space: pre;
+  tab-size: 2;
+}
+.scope :global(.aso-json-actions) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.scope :global(.aso-json-actions) button {
+  min-width: 0;
+  white-space: normal;
+}

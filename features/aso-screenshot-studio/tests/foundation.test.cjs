@@ -17,7 +17,7 @@ const { elementSvg } = require('../render/svg.ts');
 const { serializeProject, parseProjectJson } = require('../services/projectFiles.ts');
 const { pushHistory, undoHistory, redoHistory } = require('../hooks/useHistory.ts');
 const { resolveSelection } = require('../hooks/useSelection.ts');
-const { imageDimensions } = require('../domain/imageDimensions.ts');
+const { imageDimensions, imageDimensionsWhenStandard } = require('../domain/imageDimensions.ts');
 const { resizeWithAspectRatio } = require('../domain/aspectRatio.ts');
 function fixture() {
   const project = createProject('Test');
@@ -32,6 +32,15 @@ test('uploaded images use source dimensions and inspector ratio lock scales both
   assert.deepEqual(resizeWithAspectRatio(400, 800, 'width', 600), { width: 600, height: 1200 });
   assert.deepEqual(resizeWithAspectRatio(400, 800, 'height', 400), { width: 200, height: 400 });
 });
+test('upload replacement preserves manually resized image dimensions', () => {
+  const { group } = fixture();
+  const image = createElement('image', group);
+  assert.deepEqual(imageDimensionsWhenStandard(image, 1320, 2868), { width: 1320, height: 2868 });
+  assert.deepEqual(imageDimensionsWhenStandard({ ...image, width: image.width + 1 }, 1320, 2868), {});
+  const svg = createElement('svg', group);
+  assert.deepEqual(imageDimensionsWhenStandard(svg, 512, 256), { width: 512, height: 256 });
+  assert.deepEqual(imageDimensionsWhenStandard({ ...svg, height: svg.height - 1 }, 512, 256), {});
+});
 test('decoration choices render distinct shapes', () => {
   const { group } = fixture();
   const decoration = createElement('decoration', group);
@@ -44,14 +53,25 @@ test('decoration choices render distinct shapes', () => {
 });
 test('all element variants and references round-trip without UI state or embedded assets', () => {
   const { project, group } = fixture();
-  group.elements = ['text', 'shape', 'image', 'device', 'decoration'].map(type => createElement(type, group));
+  group.elements = ['text', 'shape', 'image', 'svg', 'device', 'decoration'].map(type => createElement(type, group));
   group.elements[2].asset = { assetId: 'local-image' };
   group.elements[2].asset.fileName = 'screen-shot.png';
-  group.elements[3].screenshot = { assetId: 'screenshot-1' };
+  group.elements[3].asset = { assetId: 'local-svg', fileName: 'icon.svg' };
+  group.elements[4].screenshot = { assetId: 'screenshot-1' };
   group.background = { type: 'gradient', from: '#ffffff', to: '#000000', angle: 45 };
   assert.deepEqual(parseProjectJson(serializeProject(project)), project);
   assert.equal(JSON.stringify(project).includes('base64'), false);
   assert.equal(parseProjectJson(serializeProject(project)).groups[0].elements[2].asset.fileName, 'screen-shot.png');
+  assert.equal(parseProjectJson(serializeProject(project)).groups[0].elements[3].type, 'svg');
+});
+test('custom svg element renders original and tint modes', () => {
+  const { group } = fixture();
+  const svg = { ...createElement('svg', group), asset: { assetId: 'logo', fileName: 'logo.svg' } };
+  const original = elementSvg(svg, 'preview', { logo: 'data:image/svg+xml;base64,PHN2Zy8+' });
+  const tinted = elementSvg({ ...svg, colorMode: 'tint', tint: '#ff0000' }, 'preview', { logo: 'data:image/svg+xml;base64,PHN2Zy8+' });
+  assert.match(original, /preserveAspectRatio="xMidYMid meet"/);
+  assert.match(tinted, /<mask/);
+  assert.match(tinted, /fill="#ff0000"/);
 });
 test('strict validation rejects malformed dimensions, duplicate nested IDs, unknown fields and versions', () => {
   for (const mutate of [

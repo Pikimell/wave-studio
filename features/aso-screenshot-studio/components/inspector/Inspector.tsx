@@ -1,9 +1,9 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { commonValue, selectedElements } from '../../domain/selection';
 import styles from './Inspector.module.css';
 import type { OrderDirection } from '../../domain/elements';
 import type { Command, GroupPatch } from '../../domain/commands';
-import { LIMITS, type ElementGeometry, type Group, type Project } from '../../domain/schema';
+import { LIMITS, validateProject, type ElementGeometry, type Group, type Project } from '../../domain/schema';
 import { PRESETS } from '../../domain/presets';
 import type { Selection } from '../../hooks/useSelection';
 import { PresetOptions } from '../dialogs/AddGroupDialog';
@@ -17,7 +17,7 @@ import { FontPicker } from './FontPicker';
 import { InspectorSection } from './InspectorSection';
 export function Inspector({ project, selection, dispatch, onExportSlide, onDuplicateGroup, onLocalizeGroup, onExportGroup, exporting }: { project: Project | null; selection: Selection; dispatch: (command: Command) => void; onExportSlide: (groupId: string, slideId: string) => void; onDuplicateGroup: (group: Group) => void; onLocalizeGroup: (group: Group) => void; onExportGroup: (groupId: string) => void; exporting: boolean }) {
   const group = project?.groups.find(g => g.id === selection?.groupId);
-  if (!group || !selection) return <aside className={`${styles.scope} aso-inspector`}><h2>Inspector</h2><p>Оберіть групу, слайд або елемент, щоб змінити його властивості.</p></aside>;
+  if (!project || !group || !selection) return <aside className={`${styles.scope} aso-inspector`}><h2>Inspector</h2><p>Оберіть групу, слайд або елемент, щоб змінити його властивості.</p></aside>;
   const updateGroup = (patch: GroupPatch) => dispatch({ type: 'group.update', groupId: group.id, patch });
   const selected = selectedElements(group, selection);
   if (selected.length > 1) return <MultiInspector group={group} elements={selected} dispatch={dispatch} />;
@@ -30,11 +30,11 @@ export function Inspector({ project, selection, dispatch, onExportSlide, onDupli
       {element.type === 'text' && <TextInspector element={element} update={patch => dispatch({ type: 'element.text', groupId: group.id, elementId: element.id, patch })} />}
       <InspectorSection title="Властивості елемента"><AssetInspector element={element} update={patch => dispatch({ type: 'element.update', groupId: group.id, elementId: element.id, patch })} /></InspectorSection>
       <InspectorSection title="Дії"><OrderControls groupId={group.id} ids={[element.id]} dispatch={dispatch} /><button className="aso-danger" onClick={() => dispatch({ type: 'element.delete', groupId: group.id, elementId: element.id })}>Видалити елемент</button></InspectorSection>
-    </Fragment> : slide ? <SlideInspector key={slide.id} group={group} slide={slide} dispatch={dispatch} onExport={() => onExportSlide(group.id, slide.id)} exporting={exporting} /> : <GroupFields group={group} update={updateGroup} onDuplicate={() => onDuplicateGroup(group)} onLocalize={() => onLocalizeGroup(group)} onExport={() => onExportGroup(group.id)} exporting={exporting} />}
+    </Fragment> : slide ? <SlideInspector key={slide.id} group={group} slide={slide} dispatch={dispatch} onExport={() => onExportSlide(group.id, slide.id)} exporting={exporting} /> : <GroupFields project={project} group={group} dispatch={dispatch} update={updateGroup} onDuplicate={() => onDuplicateGroup(group)} onLocalize={() => onLocalizeGroup(group)} onExport={() => onExportGroup(group.id)} exporting={exporting} />}
     {!element && !slide && <InspectorSection title="Видалення"><button className="aso-danger" onClick={() => dispatch({ type: 'group.delete', groupId: group.id })}>Видалити групу</button></InspectorSection>}
   </aside>;
 }
-function GroupFields({ group, update, onDuplicate, onLocalize, onExport, exporting }: { group: Group; update: (patch: GroupPatch) => void; onDuplicate: () => void; onLocalize: () => void; onExport: () => void; exporting: boolean }) {
+function GroupFields({ project, group, dispatch, update, onDuplicate, onLocalize, onExport, exporting }: { project: Project; group: Group; dispatch: (command: Command) => void; update: (patch: GroupPatch) => void; onDuplicate: () => void; onLocalize: () => void; onExport: () => void; exporting: boolean }) {
   return <>
     <InspectorSection title="Група">
     <TextField label="Назва" value={group.name} onChange={name => update({ name })} />
@@ -51,7 +51,38 @@ function GroupFields({ group, update, onDuplicate, onLocalize, onExport, exporti
     </InspectorSection>
     <InspectorSection title="Фон групи"><BackgroundEditor background={group.background} onChange={background => background && update({ background })} /></InspectorSection>
     <InspectorSection title="Дії групи"><div className="aso-group-actions"><button onClick={onDuplicate}>Дублювати групу</button><button disabled={!group.elements.some(element => element.type === 'text')} onClick={onLocalize}>Локалізувати</button><button disabled={exporting || !group.slides.length} onClick={onExport}>Export ZIP</button></div></InspectorSection>
+    <GroupJsonSection key={group.id} project={project} group={group} dispatch={dispatch} />
   </>;
+}
+
+function GroupJsonSection({ project, group, dispatch }: { project: Project; group: Group; dispatch: (command: Command) => void }) {
+  const groupJson = useMemo(() => JSON.stringify(group, null, 2), [group]);
+  const [draft, setDraft] = useState(groupJson);
+  const [dirty, setDirty] = useState(false);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    if (!dirty) setDraft(groupJson);
+  }, [dirty, groupJson]);
+  function save() {
+    try {
+      const parsed = JSON.parse(draft) as Group;
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('JSON має бути обʼєктом групи.');
+      const nextGroup = { ...parsed, id: group.id };
+      validateProject({ ...project, groups: project.groups.map(item => item.id === group.id ? nextGroup : item) });
+      dispatch({ type: 'group.replace', groupId: group.id, group: nextGroup });
+      setDraft(JSON.stringify(nextGroup, null, 2));
+      setDirty(false);
+      setError('');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Некоректний JSON групи.');
+    }
+  }
+  return <InspectorSection title="JSON">
+    <label className="aso-field aso-json-editor"><span>Опис групи</span><textarea spellCheck={false} rows={18} value={draft} onChange={event => { setDraft(event.target.value); setDirty(true); setError(''); }} /></label>
+    {error && <p className="aso-warning">{error}</p>}
+    <div className="aso-json-actions"><button type="button" disabled={!dirty} onClick={save}>Зберегти JSON</button><button type="button" disabled={!dirty} onClick={() => { setDraft(groupJson); setDirty(false); setError(''); }}>Скинути</button></div>
+    <p className="aso-note">Зміни з цього поля застосовуються лише після збереження. Поле id групи фіксується автоматично.</p>
+  </InspectorSection>;
 }
 
 function OrderControls({ groupId, ids, dispatch }: { groupId: string; ids: string[]; dispatch: (command: Command) => void }) {
