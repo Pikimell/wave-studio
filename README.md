@@ -2,74 +2,37 @@
 
 Live demo: [wave-studio-beta.vercel.app](https://wave-studio-beta.vercel.app)
 
-Генератор багатошарових хвилястих фонів. Налаштуйте розмір полотна, основний колір і кожну хвилю окремо. Кожну хвилю можна зміщувати по X на ±100% ширини полотна; частота доступна до 80×. Результат можна завантажити як PNG або SVG. У шапці є перемикач світлої та темної теми.
+Wave Studio is a visual editor for layered wave backgrounds and App Store screenshot compositions. Configure the canvas, colors, wave geometry, themes, and export the result as PNG or SVG.
 
-## Запуск
-
-У папці проєкту встановіть залежності та запустіть Next.js dev server:
+## Getting started
 
 ```sh
 npm install
 npm run dev
 ```
 
-Відкрийте `http://localhost:3000` у браузері. Налаштування автоматично зберігаються в браузері.
+Open `http://localhost:3000`. Settings are stored in the browser.
 
-Розміри полотна: від 256 до 12 000 px на сторону. PNG підтримує полотна до 80 млн пікселів; для більших розмірів використовуйте SVG.
+## Architecture
 
-## Ліцензія
-
-Код доступний за ліцензією [PolyForm Noncommercial License 1.0.0](./LICENSE.md). Ви можете переглядати, використовувати, змінювати й поширювати проєкт лише для некомерційних цілей.
-
-Комерційне використання, включно з використанням у платних продуктах, сервісах, клієнтських роботах або внутрішніх бізнес-процесах компаній, не дозволене без окремого письмового дозволу власника авторських прав.
-
-## Архітектура
-
-Проєкт перенесено на Next.js App Router. Основна логіка розділена так:
-
-- `app/` — Next.js layout, сторінка та глобальні стилі.
-- `features/wave-studio/components/` — UI-компоненти редактора.
-- `features/wave-studio/domain/` — типи, константи, генерація SVG і доменна математика.
-- `features/wave-studio/hooks/` — стан редактора, тема, toast і підгонка превʼю.
-- `features/wave-studio/services/` — експорт PNG/SVG.
+- `app/` — Next.js App Router, layout, page, and global styles.
+- `features/wave-studio/components/` — editor UI.
+- `features/wave-studio/domain/` — types, constants, SVG generation, and domain math.
+- `features/wave-studio/hooks/` — editor state, theme, toast, and preview sizing.
+- `features/wave-studio/services/` — PNG/SVG export.
 
 ## API
 
-`POST /api` генерує файл із JSON-налаштувань і повертає `image/svg+xml` або `image/png`.
-
-```json
-{
-  "format": "png",
-  "width": 1920,
-  "height": 640,
-  "background": "#EAF5FF",
-  "waves": [
-    {
-      "color": "random",
-      "type": "fill",
-      "position": 70,
-      "amplitude": "random",
-      "frequency": 2.2,
-      "offset": 0,
-      "opacity": 88,
-      "seed": "random"
-    }
-  ]
-}
-```
-
-Для властивостей хвилі `color`, `type`, `position`, `amplitude`, `frequency`, `offset`, `opacity`, `seed` можна передати `"random"`. `format` підтримує `svg` і `png`.
+`POST /api` accepts JSON settings and returns `image/svg+xml` or `image/png`. The API supports canvas dimensions, background, wave type, position, amplitude, frequency, offset, opacity, and seed.
 
 ## ASO Screenshot Studio
 
-Відкрийте `/aso-screenshot-studio`, щоб побачити список проєктів. **Створити проєкт** дає вибір: порожній документ, готовий шаблон або копія наявного проєкту. Каталог містить три шаблони по три слайди, а редактор пропонує 18 готових триколірних градієнтів. JSON-шаблони лежать у `public/aso-screenshot-studio/templates/`; додайте файл із валідним документом `schemaVersion: 1` та запис у `index.json`, щоб показати його в каталозі. Для експорту шаблону додайте власні скріншоти у пристрої.
+Open `/aso-screenshot-studio` to create screenshot projects from blank documents, templates, or local copies. Projects are stored in browser `localStorage`; uploaded images and fonts use IndexedDB. JSON export does not contain images or API keys.
 
-У редакторі додайте групу для потрібної платформи й розміру, потім слайди, текст, зображення, фігури або пристрої. Кожен пристрій має власний screenshot. Елементи можуть перетинати межу між слайдами; проміжок між слайдами не потрапляє до PNG. Перетягуйте елементи на полотні, утримуйте Shift під час зміни розміру для збереження пропорцій, Alt під час руху — щоб вимкнути привʼязку. Undo/Redo працює для змін документа. Нижня панель показує мініатюри активної групи після короткої паузи в редагуванні.
+The editor supports platform groups, slides, text, images, shapes, devices, undo/redo, PNG export, ZIP export, and optional in-memory OpenAI localization.
 
-Проєкти автоматично зберігаються в localStorage цього браузера, а завантажені зображення — в IndexedDB. **Save JSON** створює окремий файл документа; він не містить зображень або API-ключа. Після перенесення JSON на інший пристрій відсутні зображення потрібно повторно завантажити через Inspector. **Open JSON** замінює дані поточного проєкту після підтвердження. Видалення проєкту зі списку видаляє його JSON із localStorage; зображення, які можуть використовуватися іншими проєктами, залишаються у браузерному сховищі.
+## License
 
-Кнопка **Localize** відкриває вибір мов, моделі й поля для власного OpenAI API-ключа. Ключ живе лише в памʼяті відкритої вкладки. Перевірте локалізовані тексти вручну: редактор не змінює шрифт чи розміри блоків автоматично. **Export Slide** завантажує один PNG; **Export ZIP** у заголовку групи перевіряє ресурси й завантажує PNG усіх слайдів. Критичні помилки показуються перед експортом і блокують його.
+The code is available under the [PolyForm Noncommercial License 1.0.0](./LICENSE.md). Commercial use requires written permission.
 
-У налаштуваннях тексту є пошук серед 30 вбудованих гарнітур і чотирьох системних, зокрема Kalam та Fredoka One. Можна завантажити власний WOFF2, WOFF, TTF або OTF (до 10 MB). Власні шрифти зберігаються локально в браузері та вбудовуються в PNG-експорт; при перенесенні JSON на інший браузер їх треба завантажити й знову обрати для тексту. Kalam і Fredoka One містять латиницю, але не кирилицю.
-
-На сторінці проєктів є **Імпортувати JSON**: імпортований документ перевіряється і відкривається як нова локальна копія, не перезаписуючи інші проєкти.
+Ukrainian documentation: [README-uk.md](README-uk.md).
