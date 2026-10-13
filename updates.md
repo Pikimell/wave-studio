@@ -71,3 +71,5 @@
 (2026-09-28) - Додали окремий SVG-елемент із завантаженням, fit-режимами та tint-кольором (feat: add custom svg elements)
 (2026-09-28) - Зберігаємо змінений вручну розмір image/SVG при заміні файлу в Inspector (fix: preserve resized image dimensions on upload)
 (2026-09-28) - Додали редагований JSON-опис групи в Inspector із застосуванням після збереження (feat: add group json editor)
+
+(2026-10-13) - Оновили README: опис проєкту, стек, архітектура та запуск англійською для роботодавців (docs: rewrite README for portfolio presentation)

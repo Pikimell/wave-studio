@@ -1,8 +1,15 @@
 # Wave Studio
 
-Live demo: [wave-studio-beta.vercel.app](https://wave-studio-beta.vercel.app)
+> Visual editor for layered wave backgrounds and App Store screenshot compositions, with PNG/SVG export and an image-generation API.
 
-Wave Studio is a visual editor for layered wave backgrounds and App Store screenshot compositions. Configure the canvas, colors, wave geometry, themes, and export the result as PNG or SVG.
+![Next.js](https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![SVG](https://img.shields.io/badge/SVG-FFB13B?logo=svg&logoColor=black)
+
+**Live demo:** [wave-studio-beta.vercel.app](https://wave-studio-beta.vercel.app)
+
+Configure the canvas, colors, wave geometry, themes, and export the result as PNG or SVG.
 
 ## Getting started
 
@@ -36,3 +43,7 @@ The editor supports platform groups, slides, text, images, shapes, devices, undo
 The code is available under the [PolyForm Noncommercial License 1.0.0](./LICENSE.md). Commercial use requires written permission.
 
 Ukrainian documentation: [README-uk.md](README-uk.md).
+
+## Author
+
+**Volodymyr Pashchenko**, Full-stack Developer · [GitHub](https://github.com/Pikimell) · [LinkedIn](https://www.linkedin.com/in/pashchenko-v-r)
